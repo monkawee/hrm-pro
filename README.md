@@ -25,3 +25,42 @@
 ```bash
 git clone [https://github.com/monkawee/hrm-pro.git](https://github.com/monkawee/hrm-pro.git)
 cd hrm-pro
+```
+
+### 2. Setup Virtual Environment & Install Dependencies
+```bash
+python -m venv venv
+# Windows
+.\venv\Scripts\activate
+# Install
+pip install -r requirements.txt
+```
+
+### 3. Initialize Database & Seed Data
+```bash
+python -m app.seed
+```
+
+### 4. Run the Server
+```bash
+uvicorn app.main:app --reload
+```
+
+เปิดบราวเซอร์ไปที่: http://127.0.0.1:8000
+
+🔑 Demo Access
+Username: admin
+
+Password: 1234
+
+🛤️ Roadmap
+
+[x] Phase 1: Core System & Employee Management
+
+[ ] Phase 2: Leave Request System (Coming Soon)
+
+[ ] Phase 3: Payroll Automation
+
+[ ] Phase 4: API Mobile Integration
+
+Developed with ❤️ by monkawee
