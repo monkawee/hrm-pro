@@ -1,56 +1,138 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการพนักงาน | HRM PRO</title>
     <script src="{{ url_for('static', path='/js/tailwind.js') }}"></script>
     <link href="{{ url_for('static', path='/css/all.min.css') }}" rel="stylesheet">
-    <style>
-        body { font-family: 'Tahoma', 'Microsoft Sans Serif', sans-serif; }
-    </style>
 </head>
-<body class="bg-gray-50">
-    <div class="max-w-6xl mx-auto p-8">
+<body class="bg-slate-50 font-sans text-slate-900">
+
+    <div class="max-w-6xl mx-auto py-10 px-4">
         <div class="flex justify-between items-center mb-8">
-            <h1 class="text-2xl font-bold text-gray-800">จัดการรายชื่อพนักงาน</h1>
-            <a href="/dashboard" class="text-blue-600 hover:underline">กลับหน้า Dashboard</a>
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800">จัดการพนักงาน</h1>
+                <p class="text-slate-500">เพิ่ม ลบ และจัดสายการบังคับบัญชา</p>
+            </div>
+            <a href="/dashboard" class="bg-white border border-slate-200 px-5 py-2 rounded-2xl hover:bg-slate-50 transition flex items-center shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i> กลับหน้า Dashboard
+            </a>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-            <table class="w-full text-left">
-                <thead class="bg-gray-50 border-b border-gray-100">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-white mb-10">
+            <h2 class="text-lg font-bold mb-6 flex items-center">
+                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mr-3">
+                    <i class="fas fa-plus text-sm"></i>
+                </div>
+                เพิ่มพนักงานใหม่เข้าสู่ระบบ
+            </h2>
+            <form action="/employees/add" method="post" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="space-y-1">
+                    <label class="text-sm font-semibold ml-2">ชื่อ-นามสกุล</label>
+                    <input type="text" name="full_name" placeholder="เช่น นายสมชาย ใจดี" class="w-full border-0 bg-slate-100 p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-sm font-semibold ml-2">ชื่อผู้ใช้ (Username)</label>
+                    <input type="text" name="username" placeholder="เช่น somchai_s" class="w-full border-0 bg-slate-100 p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-sm font-semibold ml-2">รหัสผ่าน</label>
+                    <input type="password" name="password" placeholder="••••••••" class="w-full border-0 bg-slate-100 p-4 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-sm font-semibold ml-2">สิทธิ์การใช้งาน</label>
+                    <select name="role_id" class="w-full border-0 bg-slate-100 p-4 rounded-2xl outline-none cursor-pointer"> 
+                        <option value="" disabled selected>เลือกตำแหน่ง...</option>
+                        {% for role in roles %}
+                            <option value="{{ role.id }}">{{ role.display_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="text-sm font-semibold ml-2">หัวหน้างาน (Manager)</label>
+                    <select name="manager_id" class="w-full border-0 bg-slate-100 p-4 rounded-2xl outline-none cursor-pointer">
+                        <option value="0">-- ไม่มีหัวหน้า (สายตรง) --</option>
+                        {% for m in managers %}
+                        <option value="{{ m.id }}">{{ m.full_name }} ({{ m.role }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 text-white p-4 rounded-2xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                        บันทึกข้อมูลพนักงาน
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-white overflow-hidden">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50/50 border-b border-slate-100">
                     <tr>
-                        <th class="p-4 font-semibold text-gray-600">ชื่อ-นามสกุล</th>
-                        <th class="p-4 font-semibold text-gray-600">ตำแหน่ง (Role)</th>
-                        <th class="p-4 font-semibold text-gray-600">สถานะ</th>
-                        <th class="p-4 font-semibold text-gray-600 text-center">จัดการ</th>
+                        <th class="p-6 font-bold text-slate-500 text-sm tracking-wider text-center">พนักงาน</th>
+                        <th class="p-6 font-bold text-slate-500 text-sm tracking-wider text-center">สถานะ</th>
+                        <th class="p-6 font-bold text-slate-500 text-sm tracking-wider text-center">สายงาน (Report to)</th>
+                        <th class="p-6 font-bold text-slate-500 text-sm tracking-wider text-center">การจัดการ</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-slate-50">
                     {% for emp in employees %}
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="p-4 font-medium text-gray-800">{{ emp.full_name }}</td>
-                        <td class="p-4"><span class="capitalize">{{ emp.role }}</span></td>
-                        <td class="p-4">
-                            {% if emp.is_active %}
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <span class="w-2 h-2 mr-1.5 bg-green-500 rounded-full"></span> Active
-                            </span>
+                    <tr class="hover:bg-slate-50/80 transition group">
+                        <td class="p-6">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center mr-4 text-slate-500 group-hover:bg-blue-500 group-hover:text-white transition">
+                                    <i class="fas fa-user text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="font-bold text-slate-800">{{ emp.full_name }}</div>
+                                    <div class="text-xs font-semibold px-2 py-0.5 rounded-md inline-block mt-1 
+                                        {{ 'bg-purple-100 text-purple-600' if emp.role == 'Admin' else 'bg-blue-100 text-blue-600' if emp.role == 'Manager' else 'bg-slate-100 text-slate-500' }}">
+                                        {{ emp.role_data.display_name if emp.role_data else 'ไม่มีตำแหน่ง' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-6 text-center">
+                            <button data-user-id="{{ emp.id }}"
+                                    onclick="toggleStatus(this)"
+                                    id="status-btn-{{ emp.id }}"
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold transition-all
+                                    {{ 'bg-green-100 text-green-600' if emp.is_active else 'bg-red-100 text-red-600' }}">
+                                <div id="dot-{{ emp.id }}" class="w-1.5 h-1.5 rounded-full mr-2 {{ 'bg-green-500' if emp.is_active else 'bg-red-500' }}"></div>
+                                <span id="text-{{ emp.id }}">{{ 'Active' if emp.is_active else 'Inactive' }}</span>
+                            </button>
+                        </td>
+                        <td class="p-6">
+                            {% if emp.manager_data %}
+                                <div class="flex items-center">
+                                    <span class="text-sm font-medium text-gray-900">{{ emp.manager_data.full_name }}</span>
+                                </div>
                             {% else %}
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                <span class="w-2 h-2 mr-1.5 bg-red-500 rounded-full"></span> Disabled
-                            </span>
+                                <span class="text-slate-300 italic text-sm">- สูงสุดในสายงาน -</span>
                             {% endif %}
                         </td>
-                        <td class="p-4 text-center">
-                            <form action="/employees/toggle/{{ emp.id }}" method="post">
-                                <button type="submit" class="text-sm font-semibold px-4 py-2 rounded-lg border shadow-sm transition
-                                    {% if emp.is_active %}
-                                    text-red-600 border-red-200 hover:bg-red-50
-                                    {% else %}
-                                    text-green-600 border-green-200 hover:bg-green-50
-                                    {% endif %}">
-                                    {% if emp.is_active %} ปิดกั้น {% else %} ปลดล็อก {% endif %}
+                        <td class="p-6">
+                            <div class="flex justify-center gap-2">
+                                <button type="button" 
+                                        onclick="openEditModal('{{ emp.id }}', '{{ emp.full_name }}', '{{ emp.role_id }}', '{{ emp.manager_id or 0 }}')"
+                                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-50 text-blue-400 hover:bg-blue-500 hover:text-white transition shadow-sm">
+                                    <i class="fas fa-edit"></i>
                                 </button>
-                            </form>
+                                <button type="button" 
+                                        data-user-id="{{ emp.id }}"
+                                        onclick="deleteEmployee(this)"
+                                        class="w-10 h-10 flex items-center justify-center rounded-xl bg-red-50 text-red-400 hover:bg-red-500 hover:text-white transition shadow-sm">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="p-20 text-center text-slate-400">
+                            <i class="fas fa-users text-4xl mb-4 block opacity-20"></i>
+                            ไม่พบข้อมูลพนักงานในระบบ
                         </td>
                     </tr>
                     {% endfor %}
@@ -58,5 +140,126 @@
             </table>
         </div>
     </div>
+    <div id="editModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center">
+    <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-white">
+        <h2 class="text-2xl font-bold mb-6">แก้ไขข้อมูลพนักงาน</h2>
+        <form id="editForm" onsubmit="submitEdit(event)" class="space-y-4">
+            <input type="hidden" id="edit_user_id">
+            <div>
+                <label class="text-sm font-bold ml-1">ชื่อ-นามสกุล</label>
+                <input type="text" id="edit_full_name" class="w-full bg-slate-100 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="text-sm font-bold ml-1">ตำแหน่ง</label>
+                <select name="role_id" id="edit_role_id" class="form-select w-full px-4 py-2.5 rounded-xl border ...">
+                    <option value="" disabled selected>เลือกตำแหน่ง...</option>
+                    {% for role in roles %}
+                        <option value="{{ role.id }}">{{ role.display_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-bold ml-1">หัวหน้างาน</label>
+                <select id="edit_manager_id" class="w-full bg-slate-100 p-4 rounded-2xl outline-none">
+                    <option value="0">-- ไม่มีหัวหน้า --</option>
+                    {% for m in managers %}
+                    <option value="{{ m.id }}">{{ m.full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button type="button" onclick="closeModal()" class="flex-1 p-4 rounded-2xl font-bold bg-slate-100">ยกเลิก</button>
+                <button type="submit" class="flex-1 p-4 rounded-2xl font-bold bg-blue-600 text-white shadow-lg shadow-blue-200">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    function openEditModal(id, name, roleId, managerId) {
+        document.getElementById('edit_user_id').value = id;
+        document.getElementById('edit_full_name').value = name;
+        document.getElementById('edit_role_id').value = roleId; 
+        const roleSelect = document.getElementById('edit_role_id');
+        if (roleSelect) {
+            roleSelect.value = roleId;
+        }
+        document.getElementById('edit_manager_id').value = managerId;
+        document.getElementById('editModal').classList.remove('hidden');
+        document.getElementById('editModal').classList.add('flex');
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+
+    async function submitEdit(event) {
+        event.preventDefault();
+        const id = document.getElementById('edit_user_id').value;
+        const formData = new FormData();
+        formData.append('full_name', document.getElementById('edit_full_name').value);
+        formData.append('role_id', document.getElementById('edit_role_id').value);
+        formData.append('manager_id', document.getElementById('edit_manager_id').value);
+        const response = await fetch(`/employees/update/${id}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            location.reload(); 
+        } else {
+            const errorData = await response.json();
+            alert("Error: " + (errorData.detail || "Update failed"));
+        }
+    }
+</script>
+<script>
+    async function toggleStatus(element) {
+        const userId = element.getAttribute('data-user-id');
+        const btn = element;
+        const dot = document.getElementById(`dot-${userId}`);
+        const text = document.getElementById(`text-${userId}`);
+
+        try {
+            // ยิงไปที่ Route เดิมที่เรามี
+            const response = await fetch(`/employees/toggle/${userId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                // อัปเดต UI ตามค่าที่หลังบ้านส่งกลับมา
+                if (data.new_active_status) {
+                    btn.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold transition-all bg-green-100 text-green-600";
+                    dot.className = "w-1.5 h-1.5 rounded-full mr-2 bg-green-500";
+                    text.innerText = "Active";
+                } else {
+                    btn.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-bold transition-all bg-red-100 text-red-600";
+                    dot.className = "w-1.5 h-1.5 rounded-full mr-2 bg-red-500";
+                    text.innerText = "Inactive";
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('เกิดข้อผิดพลาดในการเปลี่ยนสถานะ');
+        }
+    }
+
+    async function deleteEmployee(element) {
+        if (!confirm('ยืนยันการลบข้อมูลพนักงาน?')) return;
+        
+        const userId = element.getAttribute('data-user-id');
+        const row = element.closest('tr'); // หาแถวตารางที่ปุ่มนี้อยู่
+
+        const response = await fetch(`/employees/delete/${userId}`, { method: 'POST' });
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            row.style.opacity = '0'; // ค่อยๆ จางหาย
+            setTimeout(() => row.remove(), 300); // ลบออกจาก HTML
+        }
+    }
+</script>
 </body>
 </html>
