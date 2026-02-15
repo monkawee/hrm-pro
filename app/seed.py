@@ -2,61 +2,90 @@
 # COMMAND TO RUN (Copy & Paste in Terminal):
 # python -m app.seed
 # ==========================================================
+# ==========================================================
+# COMMAND TO RUN (Copy & Paste in Terminal):
+# python -m app.seed
+# ==========================================================
 
 from app.core.database import SessionLocal, engine, Base
 from app.services.user_service import UserService
-from app.models.user import UserTable, RoleTable  # Import Table มาใช้งานตรงๆ
+
+from app.models.user import UserTable
+from app.models.role import RoleTable
+from app.models.menu import MenuTable
 
 def seed_data():
-    print("⏳ [1/4] Cleaning old data...")
+    print("⏳ [1/5] Cleaning old data...")
     Base.metadata.drop_all(bind=engine) 
     Base.metadata.create_all(bind=engine)
     
     db = SessionLocal()
     try:
-        # 1. สร้าง Roles ก่อน (หัวใจสำคัญของระบบใหม่)
-        print("🌱 [2/4] Seeding Roles...")
+        print("🌱 [2/5] Seeding Roles...")
         roles_data = [
-            {"name": "top_manager", "display_name": "Admin"},
-            {"name": "manager", "display_name": "Manager"},
-            {"name": "employee", "display_name": "Staff"}
+            {"name": "top_manager", "display_name": "ผู้บริหาร (Admin)"},
+            {"name": "manager", "display_name": "หัวหน้างาน (Manager)"},
+            {"name": "employee", "display_name": "พนักงานทั่วไป (Staff)"}
         ]
         
+        role_map = {}
         for r in roles_data:
-            role = RoleTable(name=r["name"], display_name=r["display_name"])
-            db.add(role)
+            role_obj = RoleTable(name=r["name"], display_name=r["display_name"])
+            db.add(role_obj)
+            db.flush() 
+            role_map[r["name"]] = role_obj.id
+        
         db.commit()
-        print("✅ Roles created: Admin, Manager, Staff")
+        print(f"✅ Created {len(roles_data)} roles.")
 
-        # 2. เตรียมข้อมูล User
-        # หมายเหตุ: เราส่ง 'role_name' ไปให้ Service เดี๋ยวให้ Service ไปหา id เอาเอง
-        print("🌱 [3/4] Seeding Users...")
+        print("🌱 [3/5] Seeding Menus...")
+        menus_data = [
+            {"title": "Dashboard", "link": "/dashboard", "icon": "fas fa-chart-line", "order": 1, "required_roles": None},
+            {"title": "พนักงาน", "link": "/employees", "icon": "fas fa-user-group", "order": 2, "required_roles": "top_manager,manager"},
+            {"title": "จัดการตำแหน่ง", "link": "/roles", "icon": "fas fa-briefcase", "order": 3, "required_roles": "top_manager"}
+        ]
+        
+        for m in menus_data:
+            db.add(MenuTable(**m))
+        db.commit()
+        print(f"✅ Created {len(menus_data)} dynamic menus.")
+
+        print("🌱 [4/5] Seeding Users...")
         users_to_create = [
-            {"full_name": "Senior Boss", "username": "admin", "password": "1234", "role_name": "top_manager", "manager_id": None},
-            {"full_name": "John Manager", "username": "manager1", "password": "1234", "role_name": "manager", "manager_id": None},
-            {"full_name": "Somchai Staff", "username": "staff1", "password": "1234", "role_name": "employee", "manager_id": 2}
+            {
+                "full_name": "Senior Boss", 
+                "username": "admin", 
+                "password": "123", 
+                "role_id": role_map["top_manager"], 
+                "manager_id": None
+            },
+            {
+                "full_name": "John Manager", 
+                "username": "manager1", 
+                "password": "123", 
+                "role_id": role_map["manager"], 
+                "manager_id": None
+            },
+            {
+                "full_name": "Somchai Staff", 
+                "username": "staff1", 
+                "password": "123", 
+                "role_id": role_map["employee"], 
+                "manager_id": 2 
+            }
         ]
 
         for u_data in users_to_create:
-            # 1. หา Role ID จากชื่อก่อนส่ง
-            role_obj = db.query(RoleTable).filter(RoleTable.name == u_data["role_name"]).first()
-            
-            # 2. ปรับข้อมูลให้พร้อม (ส่งแค่ role_id ที่เป็นเลข)
-            u_data["role_id"] = role_obj.id if role_obj else None
-            
-            # 3. เช็คและสร้าง
-            existing_user = UserService.get_user_by_username(db, u_data["username"])
-            if not existing_user:
-                UserService.create_user(db, u_data)
-                print(f"✅ Created User: {u_data['username']}")
-            else:
-                print(f"⚠️ Skipped: {u_data['username']} (Already exists)")
+            UserService.create_user(db, u_data)
+            print(f"✅ Created User: {u_data['username']}")
 
-        print("✨ [4/4] Seeding completed successfully!")
+        print("✨ [5/5] Seeding completed successfully!")
 
     except Exception as e:
         db.rollback()
         print(f"❌ Error during seeding: {e}")
+        import traceback
+        traceback.print_exc()
     finally:
         db.close()
 

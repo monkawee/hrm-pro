@@ -1,0 +1,47 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}จัดการตำแหน่ง - HRM PRO{% endblock %}
+{% block page_title %}ประเภทตำแหน่งงาน{% endblock %}
+
+{% block content %}
+<div class="max-w-full">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-gray-500 font-medium">จัดการสิทธิ์และประเภทตำแหน่ง</h2>
+        <button onclick="openAddRoleModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition shadow-lg shadow-blue-200">
+            <i class="fas fa-plus"></i> เพิ่มตำแหน่งใหม่
+        </button>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">System Name (ID)</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">ชื่อตำแหน่ง (Display)</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-center">สถานะใช้งาน</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-right">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+                {% for r in roles %}
+                <tr class="hover:bg-blue-50/30 transition">
+                    <td class="px-6 py-4 font-mono text-sm text-blue-600">{{ r.name }}</td>
+                    <td class="px-6 py-4 font-semibold text-gray-800">{{ r.display_name }}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold {{ 'bg-green-100 text-green-600' if r.is_active else 'bg-red-100 text-red-600' }}">
+                            {{ 'Active' if r.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <button onclick="openEditRoleModal('{{ r.id }}', '{{ r.name }}', '{{ r.display_name }}', '{{ r.is_active }}')" class="p-2 text-blue-400 hover:text-blue-600 transition"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteRole('{{ r.id }}')" class="p-2 text-red-400 hover:text-red-600 transition"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'roles/modals.html' %}
+{% endblock %}

@@ -1,0 +1,88 @@
+<div id="addRoleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-gray-800">เพิ่มตำแหน่ง</h3>
+            <button onclick="closeAddRoleModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        <form action="/roles/add" method="POST" class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-semibold mb-1">System Name (ภาษาอังกฤษเท่านั้น)</label>
+                <input type="text" name="name" placeholder="e.g. sale_manager" required class="w-full border border-gray-200 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">ชื่อเรียก (ภาษาไทย)</label>
+                <input type="text" name="display_name" placeholder="e.g. ผู้จัดการฝ่ายขาย" required class="w-full border border-gray-200 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeAddRoleModal()" class="px-5 py-2.5 text-gray-500">ยกเลิก</button>
+                <button type="submit" class="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold">บันทึก</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="editRoleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-xl font-bold text-gray-800">แก้ไขตำแหน่ง</h3>
+            <button onclick="closeEditRoleModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-6 space-y-4">
+            <input type="hidden" id="edit_role_id">
+            <div>
+                <label class="block text-sm font-semibold mb-1">System Name</label>
+                <input type="text" id="edit_role_name" readonly class="w-full bg-gray-50 border border-gray-200 rounded-xl p-2.5 text-gray-400 outline-none">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-1">ชื่อเรียก (ภาษาไทย)</label>
+                <input type="text" id="edit_display_name" class="w-full border border-gray-200 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" id="edit_role_active" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                <label for="edit_role_active" class="text-sm font-medium text-gray-700">เปิดใช้งานตำแหน่งนี้</label>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeEditRoleModal()" class="px-5 py-2.5 text-gray-500">ยกเลิก</button>
+                <button onclick="submitEditRole()" class="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700">อัปเดต</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openAddRoleModal() { document.getElementById('addRoleModal').classList.remove('hidden'); }
+function closeAddRoleModal() { document.getElementById('addRoleModal').classList.add('hidden'); }
+
+function openEditRoleModal(id, name, display, active) {
+    document.getElementById('edit_role_id').value = id;
+    document.getElementById('edit_role_name').value = name;
+    document.getElementById('edit_display_name').value = display;
+    document.getElementById('edit_role_active').checked = (active === 'True');
+    document.getElementById('editRoleModal').classList.remove('hidden');
+}
+function closeEditRoleModal() { document.getElementById('editRoleModal').classList.add('hidden'); }
+
+async function submitEditRole() {
+    const id = document.getElementById('edit_role_id').value;
+    const formData = new FormData();
+    formData.append('display_name', document.getElementById('edit_display_name').value);
+    formData.append('is_active', document.getElementById('edit_role_active').checked);
+
+    const response = await fetch(`/roles/update/${id}`, { method: 'POST', body: formData });
+    if (response.ok) location.reload(); else alert('เกิดข้อผิดพลาด');
+}
+
+async function deleteRole(id) {
+    if (confirm('ยืนยันการลบตำแหน่ง?')) {
+        const response = await fetch(`/roles/delete/${id}`, { method: 'POST' });
+        const result = await response.json();
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            // ถ้า Service พ่น HTTPException ออกมา มันจะมาโชว์ที่นี่ครับบอส
+            alert(result.detail || 'เกิดข้อผิดพลาด');
+        }
+    }
+}
+</script>

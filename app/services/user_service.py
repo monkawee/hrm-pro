@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
-from app.models.user import UserTable, RoleTable
+from app.models.user import UserTable
+from app.models.role import RoleTable
 from typing import List, Optional
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
