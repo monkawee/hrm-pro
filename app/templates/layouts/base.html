@@ -3,36 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Gemini HRM{% endblock %}</title>
+    <title>{% block title %}HRM{% endblock %}</title>
     <script src="{{ url_for('static', path='/js/tailwind.js') }}"></script>
     <link href="{{ url_for('static', path='/css/all.min.css') }}" rel="stylesheet">
     <style>
         body { font-family: 'Tahoma', 'Microsoft Sans Serif', sans-serif; }
+        .submenu-transition { transition: all 0.3s ease-in-out; }
+        .rotate-180 { transform: rotate(180deg); }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
+    {% set current_user = get_user(request) %}
     <div class="flex min-h-screen">
-        <aside class="w-64 bg-slate-900 text-white flex-shrink-0 hidden md:flex flex-col">
-            <nav class="space-y-1">
-                {% set menus = get_menus(request) %}  {% for menu in menus %}
-                <a href="{{ menu.link }}" 
-                class="flex items-center gap-3 px-4 py-3 rounded-xl transition 
-                {% if request.url.path == menu.link %} bg-blue-600 text-white {% else %} text-slate-400 hover:bg-slate-800 {% endif %}">
-                    <i class="{{ menu.icon }} w-5"></i>
-                    <span>{{ menu.title }}</span>
+        <aside class="w-64 bg-slate-900 text-white flex-shrink-0 hidden md:flex flex-col p-4">
+            <div class="mb-8 px-4 py-2">
+                <a href="/dashboard" class="flex items-center gap-3 group transition-all duration-300">
+                    {% if app_config.PROJECT_LOGO %}
+                        <img src="{{ app_config.PROJECT_LOGO }}" alt="Logo" class="h-8 w-auto object-contain group-hover:scale-105 transition">
+                    {% else %}
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-900/50">
+                                <i class="fas fa-layer-group text-white text-xs"></i>
+                            </div>
+                            <h1 class="text-xl font-bold text-white tracking-tight group-hover:text-blue-400 transition">
+                                {{ app_config.PROJECT_NAME }}
+                            </h1>
+                        </div>
+                    {% endif %}
                 </a>
+            </div>
+            <nav class="space-y-1 flex-1">
+                {% set current_menus = get_menus(request) %}
+                {% for menu in current_menus %}
+                    {% if menu.children and menu.children|length > 0 %}
+                        {% set menu_state = namespace(is_active=False) %}
+                        {% for child in menu.children %}
+                            {% if request.url.path.startswith(child.link) %}
+                                {% set menu_state.is_active = True %}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="space-y-1">
+                            <button onclick="toggleSubMenu('sub-{{ menu.id }}')" 
+                                class="w-full flex items-center justify-between px-4 py-3 rounded-xl transition group 
+                                {% if menu_state.is_active %} text-white bg-slate-800/60 {% else %} text-slate-400 hover:bg-slate-800 {% endif %}">
+                                <div class="flex items-center gap-3">
+                                    <i class="{{ menu.icon }} w-5 {% if menu_state.is_active %} text-blue-400 {% endif %}"></i>
+                                    <span>{{ menu.title }}</span>
+                                </div>
+                                <i class="fas fa-chevron-down text-[10px] transition-transform duration-300 {% if menu_state.is_active %} rotate-180 {% endif %}" 
+                                id="icon-sub-{{ menu.id }}"></i>
+                            </button>
+                            <div id="sub-{{ menu.id }}" class="{% if not menu_state.is_active %} hidden {% endif %} pl-12 space-y-1">
+                                {% for child in menu.children %}
+                                    <a href="{{ child.link }}" 
+                                    class="block py-2 text-sm transition 
+                                    {% if request.url.path.startswith(child.link) %} text-blue-400 font-bold {% else %} text-slate-500 hover:text-white {% endif %}">
+                                        {{ child.title }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ menu.link }}" 
+                            class="flex items-center gap-3 px-4 py-3 rounded-xl transition 
+                            {% if (menu.link != '/' and request.url.path.startswith(menu.link)) or (menu.link == '/' and request.url.path == '/') %} 
+                                    bg-blue-600 text-white shadow-lg shadow-blue-900/40 
+                            {% else %} 
+                                    text-slate-400 hover:bg-slate-800 
+                            {% endif %}">
+                            <i class="{{ menu.icon }} w-5"></i>
+                            <span>{{ menu.title }}</span>
+                        </a>
+                    {% endif %}
                 {% endfor %}
             </nav>
+            <div class="pt-4 border-t border-slate-800">
+                <a href="/logout" class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-900/20 transition">
+                    <i class="fas fa-right-from-bracket w-5"></i>
+                    <span>ออกจากระบบ</span>
+                </a>
+            </div>
         </aside>
         <div class="flex-1 flex flex-col">
-            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8">
+            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm">
                 <div class="text-sm text-gray-500">
                     หน้าปัจจุบัน: <span class="font-semibold text-gray-800">{% block page_title %}{% endblock %}</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <span class="text-sm font-medium">{{ user.full_name if user else 'User' }}</span>
-                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
-                        {{ user.full_name[0] if user else 'U' }}
+                    <div class="text-right hidden sm:block">
+                        <div class="text-sm font-bold text-gray-800">{{ current_user.full_name if current_user else 'Guest' }}</div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-widest">{{ current_user.role_data.display_name if current_user and current_user.role_data else 'Public' }}</div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-lg shadow-blue-200">
+                        {{ current_user.full_name[0] if current_user else '?' }}
                     </div>
                 </div>
             </header>
@@ -41,5 +104,38 @@
             </main>
         </div>
     </div>
+    <script>
+        function toggleSubMenu(id) {
+            const submenu = document.getElementById(id);
+            const icon = document.getElementById('icon-' + id);
+            
+            if (submenu) {
+                if (submenu.classList.contains('hidden')) {
+                    submenu.classList.remove('hidden');
+                    if (icon) icon.classList.add('rotate-180');
+                } else {
+                    submenu.classList.add('hidden');
+                    if (icon) icon.classList.remove('rotate-180');
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const currentPath = window.location.pathname;
+            const submenus = document.querySelectorAll('[id^="sub-"]');
+            
+            submenus.forEach(sub => {
+                const links = sub.querySelectorAll('a');
+                const hasActiveChild = Array.from(links).some(link => link.getAttribute('href') === currentPath);
+                
+                if (hasActiveChild) {
+                    sub.classList.remove('hidden');
+                    const iconId = 'icon-' + sub.id;
+                    const icon = document.getElementById(iconId);
+                    if (icon) icon.classList.add('rotate-180');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

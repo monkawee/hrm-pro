@@ -1,0 +1,135 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}จัดการเมนู - HRM PRO{% endblock %}
+{% block page_title %}ตั้งค่าเมนูระบบ{% endblock %}
+
+{% block content %}
+<div class="max-w-full">
+    <div class="flex justify-between items-center mb-6">
+        <p class="text-gray-500 text-sm">บอสสามารถลากแถวเพื่อสลับลำดับเมนูได้เลยครับ ระบบจะบันทึกอัตโนมัติ</p>
+        <button onclick="openAddMenuModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center gap-2 transition shadow-lg shadow-blue-200">
+            <i class="fas fa-plus"></i> เพิ่มเมนูใหม่
+        </button>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50 border-b border-gray-100">
+                <tr>
+                    <th class="px-4 py-4 w-10"></th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">เมนู</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Link / Path</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">สิทธิ์การเข้าถึง</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase">สถานะ</th>
+                    <th class="px-6 py-4 text-xs font-bold text-gray-500 uppercase text-right">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="menu-list" class="divide-y divide-gray-50">
+                {% for m in menus_list %}
+                <tr data-id="{{ m.id }}" 
+                    draggable="true" 
+                    ondragstart="dragStart(event)" 
+                    ondragover="dragOver(event)" 
+                    ondrop="drop(event)"
+                    class="hover:bg-blue-50/30 transition cursor-move group relative">
+                    <td class="px-4 py-4 text-gray-300 group-hover:text-blue-400">
+                        <i class="fas fa-grip-vertical"></i>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-blue-600">
+                                <i class="{{ m.icon }}"></i>
+                            </div>
+                            <span class="font-bold text-gray-800">{{ m.title }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 font-mono text-sm text-gray-500">{{ m.link }}</td>
+                    <td class="px-6 py-4">
+                        {% if m.required_roles %}
+                            {% for role in m.required_roles.split(',') %}
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">{{ role }}</span>
+                            {% endfor %}
+                        {% else %}
+                            <span class="text-xs text-gray-400 italic font-mono">public</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold {{ 'bg-green-100 text-green-600' if m.is_active else 'bg-red-100 text-red-600' }}">
+                            {{ 'Active' if m.is_active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="openEditMenuModal('{{ m.id }}', '{{ m.title }}', '{{ m.link }}', '{{ m.icon }}', '{{ m.required_roles }}', '{{ m.is_active }}')" class="p-2 text-blue-400 hover:text-blue-600 transition"><i class="fas fa-edit"></i></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    let dragSrcEl = null;
+
+    function dragStart(e) {
+        dragSrcEl = e.target.closest('tr');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', dragSrcEl.innerHTML);
+        dragSrcEl.classList.add('opacity-40'); // จางลงตอนลาก
+    }
+
+    function dragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const targetRow = e.target.closest('tr');
+        if (targetRow && targetRow !== dragSrcEl) {
+            // ทำเส้นเล็ง (Visual Feedback)
+            targetRow.classList.add('border-t-2', 'border-blue-500');
+        }
+        return false;
+    }
+
+    // ลบเส้นเล็งตอนลากผ่านไปแล้ว
+    document.addEventListener('dragleave', (e) => {
+        const targetRow = e.target.closest('tr');
+        if (targetRow) targetRow.classList.remove('border-t-2', 'border-blue-500');
+    });
+
+    async function drop(e) {
+        e.preventDefault();
+        const targetRow = e.target.closest('tr');
+        targetRow.classList.remove('border-t-2', 'border-blue-500');
+        
+        if (dragSrcEl !== targetRow) {
+            // สลับตำแหน่งใน DOM (สลับ Row กัน)
+            const allRows = [...document.getElementById('menu-list').querySelectorAll('tr')];
+            const srcIndex = allRows.indexOf(dragSrcEl);
+            const targetIndex = allRows.indexOf(targetRow);
+
+            if (srcIndex < targetIndex) {
+                targetRow.after(dragSrcEl);
+            } else {
+                targetRow.before(dragSrcEl);
+            }
+
+            // เก็บข้อมูลลำดับใหม่ส่งไปให้ API
+            const newOrder = [...document.getElementById('menu-list').querySelectorAll('tr')]
+                            .map(row => parseInt(row.getAttribute('data-id')));
+            
+            await saveNewOrder(newOrder);
+        }
+        dragSrcEl.classList.remove('opacity-40');
+    }
+
+    async function saveNewOrder(orderList) {
+        await fetch('/menus/reorder', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_list: orderList })
+        });
+        // ไม่ต้อง reload ก็ได้ครับ ลำดับใน DB อัปเดตแล้ว
+    }
+</script>
+
+{% include 'menus/modals.html' %}
+{% endblock %}

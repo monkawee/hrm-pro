@@ -40,9 +40,18 @@ def seed_data():
 
         print("🌱 [3/5] Seeding Menus...")
         menus_data = [
-            {"title": "Dashboard", "link": "/dashboard", "icon": "fas fa-chart-line", "order": 1, "required_roles": None},
-            {"title": "พนักงาน", "link": "/employees", "icon": "fas fa-user-group", "order": 2, "required_roles": "top_manager,manager"},
-            {"title": "จัดการตำแหน่ง", "link": "/roles", "icon": "fas fa-briefcase", "order": 3, "required_roles": "top_manager"}
+            # เมนูหลักเดี่ยวๆ
+            {"title": "Dashboard", "link": "/dashboard", "icon": "fas fa-chart-line", "order": 1, "parent_id": None},
+            
+            # เมนูหลักที่มีลูก (ตั้ง link เป็น # หรือ path กลาง)
+            {"id": 2, "title": "จัดการบุคลากร", "link": "#", "icon": "fas fa-users-gear", "order": 2, "parent_id": None},
+            
+            # เมนูลูก (parent_id = 2)
+            {"title": "รายชื่อพนักงาน", "link": "/employees", "icon": "fas fa-user-group", "order": 1, "parent_id": 2, "required_roles": "top_manager,manager"},
+            {"title": "จัดการตำแหน่ง", "link": "/roles", "icon": "fas fa-briefcase", "order": 2, "parent_id": 2, "required_roles": "top_manager"},
+            
+            # เมนูตั้งค่า
+            {"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 3, "parent_id": None, "required_roles": "top_manager"}
         ]
         
         for m in menus_data:

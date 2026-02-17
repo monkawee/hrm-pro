@@ -1,0 +1,72 @@
+<div id="menuModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-800">จัดการเมนู</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <form id="menuForm" class="p-6 space-y-4">
+            <input type="hidden" id="menu_id">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-sm font-semibold mb-1">ชื่อเมนู</label>
+                    <input type="text" id="title" required class="w-full border border-gray-200 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="col-span-2 md:col-span-1">
+                    <label class="block text-sm font-semibold mb-1">Path (Link)</label>
+                    <input type="text" id="link" placeholder="/example" required class="w-full border border-gray-200 rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold mb-1">ไอคอน (จิ้มเลือกได้เลยครับบอส)</label>
+                    <div class="flex gap-3 items-center mb-3">
+                        <div id="selected_icon_display" class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl border-2 border-blue-200">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <input type="text" id="icon_class" readonly class="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-2.5 font-mono text-sm">
+                    </div>
+                    <div class="grid grid-cols-8 gap-2 p-3 bg-gray-50 rounded-xl max-h-40 overflow-y-auto">
+                        {% set icon_list = ['fas fa-chart-line', 'fas fa-user-group', 'fas fa-briefcase', 'fas fa-gears', 'fas fa-calendar-check', 'fas fa-file-invoice', 'fas fa-shield-halved', 'fas fa-bell', 'fas fa-envelope', 'fas fa-wallet', 'fas fa-address-card', 'fas fa-building'] %}
+                        {% for icon in icon_list %}
+                        <div onclick="selectIcon('{{ icon }}')" class="cursor-pointer hover:bg-blue-600 hover:text-white p-2 text-center rounded-lg border border-gray-200 bg-white transition group">
+                            <i class="{{ icon }}"></i>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold mb-1">ใครมีสิทธิ์เห็นเมนูนี้บ้าง?</label>
+                    <div class="flex flex-wrap gap-4 p-3 border border-gray-100 rounded-xl">
+                        {% for r in roles %}
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="roles" value="{{ r.name }}" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-sm">{{ r.display_name }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-8">
+                <button type="button" onclick="closeModal()" class="px-5 py-2.5 text-gray-500 font-medium">ยกเลิก</button>
+                <button type="button" onclick="saveMenu()" class="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">บันทึกข้อมูล</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function selectIcon(cls) {
+        document.getElementById('icon_class').value = cls;
+        document.getElementById('selected_icon_display').innerHTML = `<i class="${cls}"></i>`;
+    }
+
+    function openAddMenuModal() {
+        document.getElementById('modalTitle').innerText = "เพิ่มเมนูใหม่";
+        document.getElementById('menu_id').value = "";
+        document.getElementById('menuForm').reset();
+        selectIcon('fas fa-rocket');
+        document.getElementById('menuModal').classList.remove('hidden');
+    }
+</script>
