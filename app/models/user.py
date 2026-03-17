@@ -6,19 +6,14 @@ class UserTable(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    password = Column(String)
-    full_name = Column(String)
+    username = Column(String, unique=True, index=True, nullable=False)
+    password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
+    
+    # --- Relationships ---
+    role = relationship("RoleTable", back_populates="users")
+    employee = relationship("Employee", back_populates="user", uselist=False)
 
-    # เชื่อมไปที่ RoleTable
-    role_id = Column(Integer, ForeignKey("roles.id")) 
-    role_data = relationship("app.models.role.RoleTable", back_populates="users")
-
-    # สายงาน (Self-referencing)
-    manager_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    manager_data = relationship("UserTable", remote_side=[id])
-
-    @property
-    def role(self):
-        return self.role_data.name if self.role_data else None
+    def __repr__(self):
+        return f"<User username={self.username} role_id={self.role_id}>"

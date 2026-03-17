@@ -32,6 +32,7 @@
                     {% endif %}
                 </a>
             </div>
+            
             <nav class="space-y-1 flex-1">
                 {% set current_menus = get_menus(request) %}
                 {% for menu in current_menus %}
@@ -77,6 +78,7 @@
                     {% endif %}
                 {% endfor %}
             </nav>
+
             <div class="pt-4 border-t border-slate-800">
                 <a href="/logout" class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-900/20 transition">
                     <i class="fas fa-right-from-bracket w-5"></i>
@@ -84,31 +86,47 @@
                 </a>
             </div>
         </aside>
+
         <div class="flex-1 flex flex-col">
             <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm">
                 <div class="text-sm text-gray-500">
                     หน้าปัจจุบัน: <span class="font-semibold text-gray-800">{% block page_title %}{% endblock %}</span>
                 </div>
+                
                 <div class="flex items-center gap-4">
                     <div class="text-right hidden sm:block">
-                        <div class="text-sm font-bold text-gray-800">{{ current_user.full_name if current_user else 'Guest' }}</div>
-                        <div class="text-[10px] text-gray-400 uppercase tracking-widest">{{ current_user.role_data.display_name if current_user and current_user.role_data else 'Public' }}</div>
+                        <div class="text-sm font-bold text-gray-800">
+                            {{ current_user.employee.first_name if current_user and current_user.employee else (current_user.username if current_user else 'Guest') }}
+                        </div>
+                        <div class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">
+                            {{ current_user.role.display_name if current_user and current_user.role else 'Public Access' }}
+                        </div>
                     </div>
+                    
                     <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-lg shadow-blue-200">
-                        {{ current_user.full_name[0] if current_user else '?' }}
+                        {% if current_user %}
+                            {% if current_user.employee %}
+                                {{ current_user.employee.first_name[0] | upper }}
+                            {% else %}
+                                {{ current_user.username[0] | upper }}
+                            {% endif %}
+                        {% else %}
+                            ?
+                        {% endif %}
                     </div>
                 </div>
             </header>
+
             <main class="p-8">
                 {% block content %}{% endblock %}
             </main>
         </div>
     </div>
+
     <script>
         function toggleSubMenu(id) {
             const submenu = document.getElementById(id);
             const icon = document.getElementById('icon-' + id);
-            
             if (submenu) {
                 if (submenu.classList.contains('hidden')) {
                     submenu.classList.remove('hidden');
@@ -123,15 +141,12 @@
         document.addEventListener("DOMContentLoaded", function() {
             const currentPath = window.location.pathname;
             const submenus = document.querySelectorAll('[id^="sub-"]');
-            
             submenus.forEach(sub => {
                 const links = sub.querySelectorAll('a');
                 const hasActiveChild = Array.from(links).some(link => link.getAttribute('href') === currentPath);
-                
                 if (hasActiveChild) {
                     sub.classList.remove('hidden');
-                    const iconId = 'icon-' + sub.id;
-                    const icon = document.getElementById(iconId);
+                    const icon = document.getElementById('icon-' + sub.id);
                     if (icon) icon.classList.add('rotate-180');
                 }
             });

@@ -1,26 +1,25 @@
-from fastapi import Request, Depends, HTTPException, status
-from fastapi.responses import RedirectResponse
-from sqlalchemy.orm import Session
+from fastapi import Request, Depends
+from sqlalchemy.orm import Session, joinedload # <--- ต้องมี joinedload
 from app.core.database import get_db
-from app.services.user_service import UserService
+from app.models.user import UserTable
 
-async def get_current_user(request: Request, db: Session = Depends(get_db)):
-    username = request.cookies.get("session_user")
-
-    if not username:
-        return None
-
-    user = UserService.get_user_by_username(db, username)
-
-    if not user:
+def get_current_user(request: Request, db: Session = Depends(get_db)):
+    # ดึง ID จาก Session ที่เราเพิ่งแก้ใน auth.py
+    user_id = request.session.get("user_id")
+    
+    if not user_id:
         return None
         
+    # 🌟 หัวใจสำคัญคือบรรทัดนี้ครับบอส!
+    user = db.query(UserTable)\
+             .options(
+                 joinedload(UserTable.employee), # ดึงข้อมูล Employee มาเลยไม่ต้องรอ
+                 joinedload(UserTable.role)     # ดึงข้อมูล Role มาเลยไม่ต้องรอ
+             )\
+             .filter(UserTable.id == user_id)\
+             .first()
+             
     return user
 
-async def admin_only(user=Depends(get_current_user)):
-    if not user or user.role != "top_manager":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="เฉพาะผู้ดูแลระบบเท่านั้นที่เข้าถึงหน้านี้ได้"
-        )
-    return user
+# ฟังก์ชันที่บอสเรียกใน base.html ({% set current_user = get_user(request) %})
+# ต้องมั่นใจว่ามันคืนค่า user ที่ผ่าน joinedload มาแล้วนะครับ
