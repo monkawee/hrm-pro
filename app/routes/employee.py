@@ -79,3 +79,10 @@ async def update_employee(
     # ส่ง db เข้าไปด้วย!
     EmployeeService.update_employee(db, emp_id, update_data) 
     return {"status": "success"}
+
+@router.post("/delete/{emp_id}")
+async def delete_employee(emp_id: int, db: Session = Depends(get_db)):
+    success = EmployeeService.delete_employee(db, emp_id)
+    if success:
+        return {"message": "Deleted"}
+    return {"message": "Employee not found"}, 404

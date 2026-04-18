@@ -31,7 +31,7 @@
                     ondragstart="dragStart(event)" 
                     ondragover="dragOver(event)" 
                     ondrop="drop(event)"
-                    class="hover:bg-blue-50/30 transition cursor-move group relative">
+                    class="hover:bg-blue-50/30 transition cursor-move group relative {% if not m.is_active %}opacity-60 bg-gray-50{% endif %}">
                     <td class="px-4 py-4 text-gray-300 group-hover:text-blue-400">
                         <i class="fas fa-grip-vertical"></i>
                     </td>
@@ -59,7 +59,8 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 text-right">
-                        <button onclick="openEditMenuModal('{{ m.id }}', '{{ m.title }}', '{{ m.link }}', '{{ m.icon }}', '{{ m.required_roles }}', '{{ m.is_active }}')" class="p-2 text-blue-400 hover:text-blue-600 transition"><i class="fas fa-edit"></i></button>
+                        <button onclick="openEditMenuModal('{{ m.id }}', '{{ m.title }}', '{{ m.link }}', '{{ m.icon }}', '{{ m.required_roles }}', '{{ m.is_active | lower }}')" class="p-2 text-blue-400 hover:text-blue-600 transition"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteMenu('{{ m.id }}')" class="p-2 text-red-400 hover:text-red-600 transition"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -75,7 +76,7 @@
         dragSrcEl = e.target.closest('tr');
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/html', dragSrcEl.innerHTML);
-        dragSrcEl.classList.add('opacity-40'); // จางลงตอนลาก
+        dragSrcEl.classList.add('opacity-40');
     }
 
     function dragOver(e) {
@@ -83,13 +84,11 @@
         e.dataTransfer.dropEffect = 'move';
         const targetRow = e.target.closest('tr');
         if (targetRow && targetRow !== dragSrcEl) {
-            // ทำเส้นเล็ง (Visual Feedback)
             targetRow.classList.add('border-t-2', 'border-blue-500');
         }
         return false;
     }
 
-    // ลบเส้นเล็งตอนลากผ่านไปแล้ว
     document.addEventListener('dragleave', (e) => {
         const targetRow = e.target.closest('tr');
         if (targetRow) targetRow.classList.remove('border-t-2', 'border-blue-500');
@@ -101,7 +100,6 @@
         targetRow.classList.remove('border-t-2', 'border-blue-500');
         
         if (dragSrcEl !== targetRow) {
-            // สลับตำแหน่งใน DOM (สลับ Row กัน)
             const allRows = [...document.getElementById('menu-list').querySelectorAll('tr')];
             const srcIndex = allRows.indexOf(dragSrcEl);
             const targetIndex = allRows.indexOf(targetRow);
@@ -112,7 +110,6 @@
                 targetRow.before(dragSrcEl);
             }
 
-            // เก็บข้อมูลลำดับใหม่ส่งไปให้ API
             const newOrder = [...document.getElementById('menu-list').querySelectorAll('tr')]
                             .map(row => parseInt(row.getAttribute('data-id')));
             
@@ -127,7 +124,6 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ order_list: orderList })
         });
-        // ไม่ต้อง reload ก็ได้ครับ ลำดับใน DB อัปเดตแล้ว
     }
 </script>
 

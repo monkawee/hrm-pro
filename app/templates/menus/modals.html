@@ -2,7 +2,7 @@
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden">
         <div class="p-6 border-b border-gray-100 flex justify-between items-center">
             <h3 id="modalTitle" class="text-xl font-bold text-gray-800">จัดการเมนู</h3>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
         </div>
         
         <form id="menuForm" class="p-6 space-y-4">
@@ -18,7 +18,7 @@
                 </div>
                 
                 <div class="col-span-2">
-                    <label class="block text-sm font-semibold mb-1">ไอคอน (จิ้มเลือกได้เลยครับบอส)</label>
+                    <label class="block text-sm font-semibold mb-1">ไอคอน</label>
                     <div class="flex gap-3 items-center mb-3">
                         <div id="selected_icon_display" class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl border-2 border-blue-200">
                             <i class="fas fa-rocket"></i>
@@ -46,6 +46,18 @@
                         {% endfor %}
                     </div>
                 </div>
+
+                <div class="col-span-2 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                    <label class="flex items-center cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" id="is_active" class="sr-only">
+                            <div class="block bg-gray-300 w-14 h-8 rounded-full transition duration-300" id="toggle_bg"></div>
+                            <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition duration-300 transform" id="toggle_dot"></div>
+                        </div>
+                        <div class="ml-3 text-sm font-bold text-gray-700" id="is_active_label">เปิดใช้งานเมนูนี้</div>
+                    </label>
+                </div>
+
             </div>
 
             <div class="flex justify-end gap-3 mt-8">
@@ -56,17 +68,126 @@
     </div>
 </div>
 
+<style>
+    /* สไตล์สำหรับ Toggle Switch ทรง Tailwind */
+    input:checked ~ #toggle_bg { background-color: #2563eb; } /* blue-600 */
+    input:checked ~ #toggle_dot { transform: translateX(100%); }
+</style>
+
 <script>
+    // 1. จัดการ Toggle Switch
+    const isActiveToggle = document.getElementById('is_active');
+    const isActiveLabel = document.getElementById('is_active_label');
+    
+    isActiveToggle.addEventListener('change', function() {
+        isActiveLabel.innerText = this.checked ? "เปิดใช้งานเมนูนี้ (Active)" : "ซ่อนเมนูนี้ (Inactive)";
+        isActiveLabel.className = this.checked ? "ml-3 text-sm font-bold text-blue-600" : "ml-3 text-sm font-bold text-red-500";
+    });
+
+    // 2. จัดการไอคอน
     function selectIcon(cls) {
         document.getElementById('icon_class').value = cls;
         document.getElementById('selected_icon_display').innerHTML = `<i class="${cls}"></i>`;
     }
 
+    // 3. ปิด Modal
+    function closeModal() {
+        document.getElementById('menuModal').classList.add('hidden');
+    }
+
+    // 4. เปิด Modal: เพิ่มเมนูใหม่
     function openAddMenuModal() {
         document.getElementById('modalTitle').innerText = "เพิ่มเมนูใหม่";
         document.getElementById('menu_id').value = "";
         document.getElementById('menuForm').reset();
+        
+        // ล้าง Role Checkbox
+        document.querySelectorAll('input[name="roles"]').forEach(cb => cb.checked = false);
         selectIcon('fas fa-rocket');
+        
+        // เด้ง Toggle กลับไปเปิด
+        isActiveToggle.checked = true;
+        isActiveToggle.dispatchEvent(new Event('change'));
+
         document.getElementById('menuModal').classList.remove('hidden');
+    }
+
+    // 5. เปิด Modal: แก้ไขเมนู (ยัดข้อมูลเก่าลงไป รวมถึง is_active)
+    function openEditMenuModal(id, title, link, icon, roles, isActiveStr) {
+        document.getElementById('modalTitle').innerText = "แก้ไขเมนู";
+        document.getElementById('menu_id').value = id;
+        document.getElementById('title').value = title;
+        document.getElementById('link').value = link;
+        selectIcon(icon);
+
+        // เช็ก Role
+        const roleArray = roles ? roles.split(',') : [];
+        document.querySelectorAll('input[name="roles"]').forEach(cb => {
+            cb.checked = roleArray.includes(cb.value);
+        });
+
+        // 🌟 เซ็ตค่า Toggle เปิดปิด
+        isActiveToggle.checked = (isActiveStr === 'true');
+        isActiveToggle.dispatchEvent(new Event('change')); // Trigger ให้ข้อความ/สี เปลี่ยน
+
+        document.getElementById('menuModal').classList.remove('hidden');
+    }
+
+    // 6. บันทึกข้อมูลและโยนไปให้หลังบ้าน
+    async function saveMenu() {
+        const id = document.getElementById('menu_id').value;
+        const title = document.getElementById('title').value;
+        const link = document.getElementById('link').value;
+        const icon = document.getElementById('icon_class').value;
+        
+        // กวาด Role
+        const checkedRoles = Array.from(document.querySelectorAll('input[name="roles"]:checked'))
+                                  .map(cb => cb.value)
+                                  .join(',');
+        
+        // 🌟 ดึงค่า boolean ปัจจุบันจาก Toggle ส่งเป็น string "true"/"false"
+        const isActiveValue = isActiveToggle.checked ? "true" : "false";
+
+        // ยัดลง FormData
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('link', link);
+        formData.append('icon', icon);
+        formData.append('required_roles', checkedRoles);
+        formData.append('is_active', isActiveValue); // ส่งกลับไปหา Route!
+
+        const url = id ? `/menus/update/${id}` : '/menus/add';
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล!");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+        }
+    }
+
+    // 7. ฟังก์ชันลบเมนู
+    async function deleteMenu(id) {
+        if (confirm("บอสแน่ใจนะครับว่าจะลบเมนูนี้ทิ้ง? (ลบแล้วกู้ไม่ได้นะ!)")) {
+            try {
+                const response = await fetch(`/menus/delete/${id}`, { method: 'POST' });
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert("เกิดข้อผิดพลาดในการลบ!");
+                }
+            } catch (error) {
+                alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+            }
+        }
     }
 </script>

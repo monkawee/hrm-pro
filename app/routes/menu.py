@@ -33,15 +33,17 @@ async def add_menu(
     title: str = Form(...),
     link: str = Form(...),
     icon: str = Form(...),
-    roles: List[str] = Form(None), # รับค่า checkbox ชื่อเดียวกันเป็น list
+    required_roles: str = Form(None), # 🌟 เปลี่ยนชื่อให้ตรงกับที่ JS ส่งมา
     db: Session = Depends(get_db)
 ):
-    required_roles = ",".join(roles) if roles else None
+    # ดักจับกรณีค่าว่าง ("") ให้กลายเป็น None เพื่อบันทึกเป็น public
+    final_roles = required_roles if required_roles else None
+    
     MenuService.create_menu(db, {
         "title": title, 
         "link": link, 
         "icon": icon, 
-        "required_roles": required_roles
+        "required_roles": final_roles
     })
     return RedirectResponse(url="/menus", status_code=status.HTTP_303_SEE_OTHER)
 
@@ -51,19 +53,20 @@ async def update_menu(
     title: str = Form(...),
     link: str = Form(...),
     icon: str = Form(...),
-    is_active: str = Form("false"),
-    roles: List[str] = Form(None),
+    is_active: str = Form("true"),
+    required_roles: str = Form(None), # 🌟 เปลี่ยนชื่อให้ตรงกับที่ JS ส่งมา
     db: Session = Depends(get_db)
 ):
-    required_roles = ",".join(roles) if roles else None
     active_bool = True if is_active.lower() == "true" else False
+    # ดักจับกรณีค่าว่าง ("") ให้กลายเป็น None
+    final_roles = required_roles if required_roles else None
     
     MenuService.update_menu(db, menu_id, {
         "title": title,
         "link": link,
         "icon": icon,
         "is_active": active_bool,
-        "required_roles": required_roles
+        "required_roles": final_roles
     })
     return {"status": "success"}
 

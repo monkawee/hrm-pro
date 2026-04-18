@@ -49,3 +49,20 @@ class MenuService:
             db.commit()
             return True
         return False
+
+    @staticmethod
+    def update_menu_order(db: Session, order_list: list):
+        """
+        อัปเดตลำดับเมนู (รับค่าเป็น List ของ ID เช่น [3, 1, 2])
+        """
+        try:
+            for index, menu_id in enumerate(order_list):
+                menu = db.query(MenuTable).filter(MenuTable.id == menu_id).first()
+                if menu:
+                    menu.order = index + 1  # ให้ลำดับเริ่มที่ 1, 2, 3...
+            db.commit()
+            return True
+        except Exception as e:
+            db.rollback()
+            print(f"Error updating menu order: {e}")
+            return False
