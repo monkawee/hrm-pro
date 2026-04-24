@@ -1,0 +1,53 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}ยื่นใบลา - HRM PRO{% endblock %}
+{% block page_title %}ยื่นคำร้องขอลาหยุด{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div class="mb-8 border-b border-gray-100 pb-4">
+            <h2 class="text-xl font-bold text-gray-800">แบบฟอร์มขออนุญาตลาหยุด</h2>
+            <p class="text-gray-500 text-sm mt-1">กรุณากรอกข้อมูลให้ครบถ้วนเพื่อเสนอต่อหัวหน้างานพิจารณา</p>
+        </div>
+
+        <form action="/leaves/request" method="POST" class="space-y-6">
+            <div>
+                <label for="leave_type" class="block mb-2 text-sm font-medium text-gray-900">ประเภทการลา <span class="text-red-500">*</span></label>
+                <select id="leave_type" name="leave_type" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition-colors">
+                    <option value="" disabled selected>เลือกประเภทการลา</option>
+                    <option value="{{ LeaveType.SICK.value }}">ลาป่วย (Sick Leave)</option>
+                    <option value="{{ LeaveType.VACATION.value }}">ลาพักร้อน (Vacation Leave)</option>
+                    <option value="{{ LeaveType.PERSONAL.value }}">ลากิจ (Personal Leave)</option>
+                    <option value="{{ LeaveType.OTHERS.value }}">อื่นๆ (Others)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="start_date" class="block mb-2 text-sm font-medium text-gray-900">ตั้งแต่วันที่ <span class="text-red-500">*</span></label>
+                    <input type="date" id="start_date" name="start_date" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition-colors">
+                </div>
+                <div>
+                    <label for="end_date" class="block mb-2 text-sm font-medium text-gray-900">ถึงวันที่ <span class="text-red-500">*</span></label>
+                    <input type="date" id="end_date" name="end_date" required class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition-colors">
+                </div>
+            </div>
+
+            <div>
+                <label for="reason" class="block mb-2 text-sm font-medium text-gray-900">เหตุผลการลา <span class="text-red-500">*</span></label>
+                <textarea id="reason" name="reason" rows="4" required class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-xl border border-gray-300 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="อธิบายเหตุผลการลาอย่างย่อ..."></textarea>
+            </div>
+
+            <div class="flex items-center justify-end gap-4 pt-4 mt-6 border-t border-gray-100">
+                <a href="/leaves" class="text-gray-500 hover:text-gray-700 hover:bg-gray-100 px-5 py-2.5 rounded-xl text-sm font-medium transition-colors">
+                    ยกเลิก
+                </a>
+                <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-xl text-sm w-full sm:w-auto px-6 py-2.5 text-center transition-colors shadow-sm">
+                    ยื่นใบลา
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

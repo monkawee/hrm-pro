@@ -57,7 +57,7 @@ Password: 1234
 
 [x] Phase 1: Core System & Employee Management
 
-[ ] Phase 2: Leave Request System (Coming Soon)
+[x] Phase 2: Leave Request System
 
 [ ] Phase 3: Payroll Automation
 

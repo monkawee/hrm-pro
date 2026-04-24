@@ -5,6 +5,7 @@ from app.models.user import UserTable
 from app.models.role import RoleTable
 from app.models.menu import MenuTable
 from app.models.employee import Employee, Attachment, AttachmentCategory # เพิ่ม Model ใหม่
+from app.models.leave_request import LeaveRequest, LeaveType, LeaveStatus
 from datetime import date
 
 def seed_data():
@@ -33,13 +34,16 @@ def seed_data():
         # --- 3. Seeding Menus ---
         print("🌱 [3/6] Seeding Menus...")
         menus_data = [
-            {"title": "Dashboard", "link": "/dashboard", "icon": "fas fa-chart-line", "order": 1, "parent_id": None},
+            {"id": 1,"title": "Dashboard", "link": "/dashboard", "icon": "fas fa-chart-line", "order": 1, "parent_id": None},
             {"id": 2, "title": "จัดการบุคลากร", "link": "#", "icon": "fas fa-users-gear", "order": 2, "parent_id": None},
             # ปรับเมนูลูกให้สอดคล้องกับ Module 6
-            {"title": "ทะเบียนพนักงาน", "link": "/employees", "icon": "fas fa-address-card", "order": 1, "parent_id": 2, "required_roles": "top_manager,manager"},
-            {"title": "ข้อมูลผู้ใช้งานระบบ", "link": "/users", "icon": "fas fa-user-shield", "order": 2, "parent_id": 2, "required_roles": "top_manager"},
-            {"title": "กลุ่มผู้ใช้งานระบบ", "link": "/roles", "icon": "fas fa-users-cog", "order": 3, "parent_id": 2, "required_roles": "top_manager"},
-            {"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 3, "parent_id": None, "required_roles": "top_manager"}
+            {"id": 3,"title": "ทะเบียนพนักงาน", "link": "/employees", "icon": "fas fa-address-card", "order": 1, "parent_id": 2, "required_roles": "top_manager,manager"},
+            {"id": 4,"title": "ข้อมูลผู้ใช้งานระบบ", "link": "/users", "icon": "fas fa-user-shield", "order": 2, "parent_id": 2, "required_roles": "top_manager"},
+            {"id": 5,"title": "กลุ่มผู้ใช้งานระบบ", "link": "/roles", "icon": "fas fa-users-cog", "order": 3, "parent_id": 2, "required_roles": "top_manager"},
+            {"id": 6, "title": "ระบบการลา", "link": "#", "icon": "fas fa-calendar-check", "order": 3, "parent_id": None},
+            {"id": 7,"title": "ประวัติการลา/อนุมัติ", "link": "/leaves", "icon": "fas fa-history", "order": 1, "parent_id": 6},
+            {"id": 8,"title": "ยื่นใบลา", "link": "/leaves/request", "icon": "fas fa-file-signature", "order": 2, "parent_id": 6},
+            {"id": 9,"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 4, "parent_id": None, "required_roles": "top_manager"}
         ]
         for m in menus_data:
             db.add(MenuTable(**m))
