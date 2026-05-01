@@ -1,0 +1,115 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}สลิปเงินเดือน - HRM PRO{% endblock %}
+{% block page_title %}รายละเอียดสลิปเงินเดือน{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="mb-4 flex justify-end print:hidden">
+        <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
+            <i class="fas fa-print mr-2"></i>พิมพ์สลิปเงินเดือน
+        </button>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 print:shadow-none print:border-none print:p-0">
+        <!-- Header -->
+        <div class="text-center mb-8 border-b border-gray-200 pb-6">
+            <h1 class="text-2xl font-bold text-gray-800 uppercase tracking-wide">{{ app_config.PROJECT_NAME }}</h1>
+            <p class="text-gray-500 mt-1">ใบรับเงินเดือน (Payslip)</p>
+            <p class="text-gray-600 font-semibold mt-2">ประจำเดือน {{ payroll.month }} ปี {{ payroll.year }}</p>
+        </div>
+
+        <!-- Employee Info -->
+        <div class="grid grid-cols-2 gap-6 mb-8 text-sm">
+            <div>
+                <p><span class="text-gray-500 font-medium inline-block w-24">รหัสพนักงาน:</span> <span class="font-bold">{{ payroll.employee.employee_code }}</span></p>
+                <p class="mt-2"><span class="text-gray-500 font-medium inline-block w-24">ชื่อ-สกุล:</span> <span class="font-bold">{{ payroll.employee.first_name }} {{ payroll.employee.last_name }}</span></p>
+            </div>
+            <div class="text-right">
+                <p><span class="text-gray-500 font-medium inline-block w-24 text-left">วันที่จ่าย:</span> <span class="font-bold">{{ payroll.payment_date.strftime('%d/%m/%Y') if payroll.payment_date else '-' }}</span></p>
+                <p class="mt-2"><span class="text-gray-500 font-medium inline-block w-24 text-left">สถานะ:</span> 
+                    {% if payroll.status == PayrollStatus.PENDING %}
+                        <span class="text-yellow-600 font-bold">รอจ่าย</span>
+                    {% else %}
+                        <span class="text-green-600 font-bold">จ่ายแล้ว</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Salary Details -->
+        <div class="grid grid-cols-2 gap-8 border border-gray-200 rounded-xl overflow-hidden">
+            <!-- รายได้ -->
+            <div>
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-800 text-center">รายได้ (Earnings)</div>
+                <div class="p-4 space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">เงินเดือนพื้นฐาน (Basic Salary)</span>
+                        <span class="font-medium">{{ "{:,.2f}".format(payroll.basic_salary) }}</span>
+                    </div>
+                    <!-- เผื่อเพิ่มรายการอื่นในอนาคต -->
+                    <div class="flex justify-between text-transparent select-none">
+                        <span>-</span>
+                        <span>-</span>
+                    </div>
+                    <div class="flex justify-between text-transparent select-none">
+                        <span>-</span>
+                        <span>-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- รายการหัก -->
+            <div class="border-l border-gray-200">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 font-bold text-gray-800 text-center">รายการหัก (Deductions)</div>
+                <div class="p-4 space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">ภาษี/ประกันสังคม (Tax/SS)</span>
+                        <span class="font-medium text-red-500">{{ "{:,.2f}".format(payroll.deductions) }}</span>
+                    </div>
+                    <!-- เผื่อเพิ่มรายการอื่นในอนาคต -->
+                    <div class="flex justify-between text-transparent select-none">
+                        <span>-</span>
+                        <span>-</span>
+                    </div>
+                    <div class="flex justify-between text-transparent select-none">
+                        <span>-</span>
+                        <span>-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="mt-8 flex justify-end">
+            <div class="w-1/2 bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div class="flex justify-between items-center text-lg font-bold text-gray-800">
+                    <span>รับสุทธิ (Net Salary):</span>
+                    <span class="text-green-600 text-xl text-right block w-full underline decoration-double">{{ "{:,.2f}".format(payroll.net_salary) }} ฿</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signatures -->
+        <div class="mt-16 grid grid-cols-2 gap-8 text-center text-sm">
+            <div>
+                <div class="w-48 border-b border-gray-400 mx-auto mb-2"></div>
+                <p class="text-gray-600">ผู้จ่ายเงิน (Authorized Signature)</p>
+            </div>
+            <div>
+                <div class="w-48 border-b border-gray-400 mx-auto mb-2"></div>
+                <p class="text-gray-600">ผู้รับเงิน (Employee Signature)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        body { background: white; }
+        aside, header { display: none !important; }
+        .max-w-3xl { max-width: 100% !important; margin: 0 !important; }
+        main { padding: 0 !important; }
+    }
+</style>
+{% endblock %}

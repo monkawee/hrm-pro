@@ -59,8 +59,8 @@ Password: 1234
 
 [x] Phase 2: Leave Request System
 
-[ ] Phase 3: Payroll Automation
+[x] Phase 3: Payroll Automation
 
-[ ] Phase 4: API Mobile Integration
+[x] Phase 4: API Mobile Integration
 
 Developed with ❤️ by monkawee

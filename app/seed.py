@@ -6,6 +6,7 @@ from app.models.role import RoleTable
 from app.models.menu import MenuTable
 from app.models.employee import Employee, Attachment, AttachmentCategory # เพิ่ม Model ใหม่
 from app.models.leave_request import LeaveRequest, LeaveType, LeaveStatus
+from app.models.payroll import Payroll, PayrollStatus
 from datetime import date
 
 def seed_data():
@@ -43,7 +44,9 @@ def seed_data():
             {"id": 6, "title": "ระบบการลา", "link": "#", "icon": "fas fa-calendar-check", "order": 3, "parent_id": None},
             {"id": 7,"title": "ประวัติการลา/อนุมัติ", "link": "/leaves", "icon": "fas fa-history", "order": 1, "parent_id": 6},
             {"id": 8,"title": "ยื่นใบลา", "link": "/leaves/request", "icon": "fas fa-file-signature", "order": 2, "parent_id": 6},
-            {"id": 9,"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 4, "parent_id": None, "required_roles": "top_manager"}
+            {"id": 9,"title": "ระบบเงินเดือน", "link": "#", "icon": "fas fa-money-check-dollar", "order": 4, "parent_id": None},
+            {"id": 10,"title": "ประวัติเงินเดือน", "link": "/payroll", "icon": "fas fa-file-invoice-dollar", "order": 1, "parent_id": 9},
+            {"id": 11,"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 5, "parent_id": None, "required_roles": "top_manager"}
         ]
         for m in menus_data:
             db.add(MenuTable(**m))
@@ -64,9 +67,9 @@ def seed_data():
         # --- 5. Seeding Employees (สร้างพนักงานมาผูกกับ User ID) ---
         print("🌱 [5/6] Seeding Employees & Documents...")
         emp_payload = [
-            {"code": "EMP001", "fname": "Senior", "lname": "Boss", "user_key": "admin"},
-            {"code": "EMP002", "fname": "John", "lname": "Manager", "user_key": "manager1"},
-            {"code": "EMP003", "fname": "Somchai", "lname": "Staff", "user_key": "staff1"}
+            {"code": "EMP001", "fname": "Senior", "lname": "Boss", "user_key": "admin", "salary": 80000},
+            {"code": "EMP002", "fname": "John", "lname": "Manager", "user_key": "manager1", "salary": 45000},
+            {"code": "EMP003", "fname": "Somchai", "lname": "Staff", "user_key": "staff1", "salary": 20000}
         ]
         
         for e in emp_payload:
@@ -75,7 +78,8 @@ def seed_data():
                 first_name=e["fname"],
                 last_name=e["lname"],
                 user_id=user_map[e["user_key"]], # ผูกตรงนี้!
-                join_date=date(2024, 1, 1)
+                join_date=date(2024, 1, 1),
+                base_salary=e["salary"]
             )
             db.add(new_emp)
             # ... (เพิ่ม Attachment ตามเดิม) ...

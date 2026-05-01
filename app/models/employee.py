@@ -23,6 +23,7 @@ class Employee(Base):
     email = Column(String(100), unique=True, index=True)
     join_date = Column(Date, nullable=False)
     is_active = Column(Boolean, default=True) 
+    base_salary = Column(Integer, default=15000)
     
     # 🔗 เชื่อมกับ User (ฝั่ง Employee เป็นคนถือ user_id)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)

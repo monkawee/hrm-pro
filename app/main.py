@@ -27,7 +27,8 @@ from app.core.config import templates
 from app.core.database import engine, Base, get_db
 from app.dependencies import get_current_user
 from app.services.user_service import UserService
-from app.routes import auth, user, role, menu, employee, dashboard, leave
+from app.routes import auth, user, role, menu, employee, dashboard, leave, payroll
+from app.api import mobile_api
 from app.core.config import settings
 
 # สร้างตารางถ้ายังไม่มี
@@ -70,6 +71,8 @@ app.include_router(role.router)
 app.include_router(menu.router)
 app.include_router(employee.router)
 app.include_router(leave.router)
+app.include_router(payroll.router)
+app.include_router(mobile_api.router)
 
 @app.get("/")
 async def root():

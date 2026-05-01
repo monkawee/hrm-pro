@@ -1,0 +1,95 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}ระบบเงินเดือน - HRM PRO{% endblock %}
+{% block page_title %}ระบบเงินเดือน / ประวัติเงินเดือน{% endblock %}
+
+{% block content %}
+<div class="max-w-full">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">รายการเงินเดือน</h2>
+        {% if user.role and user.role.name in ['hr', 'top_manager'] %}
+        <form action="/payroll/generate" method="POST" class="flex gap-2">
+            <select name="month" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 px-3 py-2">
+                <option value="1">มกราคม</option>
+                <option value="2">กุมภาพันธ์</option>
+                <option value="3">มีนาคม</option>
+                <option value="4">เมษายน</option>
+                <option value="5" selected>พฤษภาคม</option>
+                <option value="6">มิถุนายน</option>
+                <option value="7">กรกฎาคม</option>
+                <option value="8">สิงหาคม</option>
+                <option value="9">กันยายน</option>
+                <option value="10">ตุลาคม</option>
+                <option value="11">พฤศจิกายน</option>
+                <option value="12">ธันวาคม</option>
+            </select>
+            <input type="number" name="year" value="2026" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 w-24 px-3 py-2">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
+                <i class="fas fa-file-invoice-dollar mr-2"></i>สร้างรอบเงินเดือน
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">รอบเงินเดือน</th>
+                        <th class="px-6 py-4 font-semibold">พนักงาน</th>
+                        <th class="px-6 py-4 font-semibold text-right">เงินเดือน (฿)</th>
+                        <th class="px-6 py-4 font-semibold text-right">หัก (฿)</th>
+                        <th class="px-6 py-4 font-semibold text-right">รับสุทธิ (฿)</th>
+                        <th class="px-6 py-4 font-semibold text-center">สถานะ</th>
+                        <th class="px-6 py-4 font-semibold text-right">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for p in payrolls %}
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-900">{{ p.month }}/{{ p.year }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="font-medium text-gray-900">{{ p.employee.first_name }} {{ p.employee.last_name }}</div>
+                            <div class="text-xs text-gray-500">{{ p.employee.employee_code }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-right font-medium text-gray-700">{{ "{:,.2f}".format(p.basic_salary) }}</td>
+                        <td class="px-6 py-4 text-right text-red-500">-{{ "{:,.2f}".format(p.deductions) }}</td>
+                        <td class="px-6 py-4 text-right font-bold text-green-600">{{ "{:,.2f}".format(p.net_salary) }}</td>
+                        <td class="px-6 py-4 text-center">
+                            {% if p.status == PayrollStatus.PENDING %}
+                                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-1 rounded-full border border-yellow-200">รอจ่าย</span>
+                            {% else %}
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full border border-green-200">จ่ายแล้ว</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-right flex justify-end gap-2">
+                            <a href="/payroll/{{ p.id }}/slip" class="text-blue-600 hover:bg-blue-50 px-2 py-1 rounded transition-colors" title="ดูสลิป">
+                                <i class="fas fa-file-invoice text-lg"></i>
+                            </a>
+                            {% if user.role and user.role.name in ['hr', 'top_manager'] and p.status == PayrollStatus.PENDING %}
+                            <form action="/payroll/{{ p.id }}/status" method="POST" class="inline-block">
+                                <input type="hidden" name="status" value="{{ PayrollStatus.PAID.value }}">
+                                <button type="submit" class="text-green-600 hover:bg-green-50 px-2 py-1 rounded transition-colors" title="มาร์คว่าจ่ายแล้ว">
+                                    <i class="fas fa-check-circle text-lg"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-inbox text-3xl mb-3 text-gray-300"></i>
+                            <p>ยังไม่มีข้อมูลเงินเดือน</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
