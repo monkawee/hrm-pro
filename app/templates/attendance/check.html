@@ -1,0 +1,89 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}ลงเวลาเข้างาน - HRM PRO{% endblock %}
+{% block page_title %}ระบบลงเวลา (Time Attendance){% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">ลงเวลาเข้า-ออกงาน</h2>
+        <p class="text-gray-500 mb-8">กรุณากดปุ่มเพื่อบันทึกเวลา ระบบจะทำการดึงพิกัด GPS อัตโนมัติ</p>
+
+        <!-- Digital Clock -->
+        <div class="text-5xl font-mono font-bold text-blue-600 mb-8 tracking-wider" id="digitalClock">
+            00:00:00
+        </div>
+
+        <!-- Status & Buttons -->
+        <div class="space-y-6">
+            {% if not record or not record.time_in %}
+                <form action="/attendance/action" method="POST" id="checkInForm">
+                    <input type="hidden" name="action" value="in">
+                    <input type="hidden" name="lat" id="lat_in" value="0.0">
+                    <input type="hidden" name="lng" id="lng_in" value="0.0">
+                    <button type="button" onclick="getLocationAndSubmit('checkInForm', 'lat_in', 'lng_in')" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl text-lg font-bold transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-3">
+                        <i class="fas fa-sign-in-alt text-xl"></i> บันทึกเวลาเข้างาน (Check In)
+                    </button>
+                </form>
+            {% elif record and not record.time_out %}
+                <div class="p-4 bg-blue-50 border border-blue-100 rounded-xl mb-6 text-blue-800">
+                    <p class="font-bold"><i class="fas fa-check-circle mr-2"></i>คุณลงเวลาเข้างานแล้ว</p>
+                    <p class="text-sm mt-1">เวลาเข้า: {{ record.time_in.strftime('%H:%M:%S') }}</p>
+                </div>
+                
+                <form action="/attendance/action" method="POST" id="checkOutForm">
+                    <input type="hidden" name="action" value="out">
+                    <input type="hidden" name="lat" id="lat_out" value="0.0">
+                    <input type="hidden" name="lng" id="lng_out" value="0.0">
+                    <button type="button" onclick="getLocationAndSubmit('checkOutForm', 'lat_out', 'lng_out')" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-4 rounded-2xl text-lg font-bold transition-all shadow-lg shadow-orange-200 flex items-center justify-center gap-3">
+                        <i class="fas fa-sign-out-alt text-xl"></i> บันทึกเวลาออกงาน (Check Out)
+                    </button>
+                </form>
+            {% else %}
+                <div class="p-6 bg-green-50 border border-green-100 rounded-xl text-green-800">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-3xl"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">ทำรายการสำเร็จ</h3>
+                    <p>คุณได้ลงเวลาเข้าและออกงานสำหรับวันนี้เรียบร้อยแล้ว</p>
+                    <div class="mt-4 pt-4 border-t border-green-200 text-sm grid grid-cols-2 gap-4">
+                        <div>เข้า: {{ record.time_in.strftime('%H:%M:%S') }}</div>
+                        <div>ออก: {{ record.time_out.strftime('%H:%M:%S') }}</div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // นาฬิกาเดินอัตโนมัติ
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('th-TH', { hour12: false });
+        document.getElementById('digitalClock').textContent = timeString;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ดึงพิกัด GPS ก่อน Submit
+    function getLocationAndSubmit(formId, latId, lngId) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    document.getElementById(latId).value = position.coords.latitude;
+                    document.getElementById(lngId).value = position.coords.longitude;
+                    document.getElementById(formId).submit();
+                },
+                function(error) {
+                    alert("ไม่สามารถดึงตำแหน่ง GPS ได้ จะบันทึกแบบไม่มีพิกัด");
+                    document.getElementById(formId).submit();
+                }
+            );
+        } else {
+            alert("เบราว์เซอร์ของคุณไม่รองรับ GPS");
+            document.getElementById(formId).submit();
+        }
+    }
+</script>
+{% endblock %}

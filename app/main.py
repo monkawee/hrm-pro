@@ -27,7 +27,7 @@ from app.core.config import templates
 from app.core.database import engine, Base, get_db
 from app.dependencies import get_current_user
 from app.services.user_service import UserService
-from app.routes import auth, user, role, menu, employee, dashboard, leave, payroll
+from app.routes import auth, user, role, menu, employee, dashboard, leave, payroll, attendance
 from app.api import mobile_api
 from app.core.config import settings
 
@@ -73,6 +73,7 @@ app.include_router(employee.router)
 app.include_router(leave.router)
 app.include_router(payroll.router)
 app.include_router(mobile_api.router)
+app.include_router(attendance.router)
 
 @app.get("/")
 async def root():

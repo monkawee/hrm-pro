@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}ประวัติการลงเวลา - HRM PRO{% endblock %}
+{% block page_title %}ประวัติการเข้า-ออกงานของคุณ{% endblock %}
+
+{% block content %}
+<div class="max-w-full">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">ตารางการลงเวลา</h2>
+        <a href="/attendance/check" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
+            <i class="fas fa-clock mr-2"></i>ไปหน้าลงเวลา
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">วันที่</th>
+                        <th class="px-6 py-4 font-semibold">กะการทำงาน</th>
+                        <th class="px-6 py-4 font-semibold text-center">เวลาเข้า</th>
+                        <th class="px-6 py-4 font-semibold text-center">เวลาออก</th>
+                        <th class="px-6 py-4 font-semibold text-center">ชั่วโมงทำงาน</th>
+                        <th class="px-6 py-4 font-semibold text-center">OT</th>
+                        <th class="px-6 py-4 font-semibold text-center">สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for r in records %}
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-gray-900">{{ r.date.strftime('%d/%m/%Y') }}</td>
+                        <td class="px-6 py-4">{{ r.shift.name }}</td>
+                        <td class="px-6 py-4 text-center">{{ r.time_in.strftime('%H:%M') if r.time_in else '-' }}</td>
+                        <td class="px-6 py-4 text-center">{{ r.time_out.strftime('%H:%M') if r.time_out else '-' }}</td>
+                        <td class="px-6 py-4 text-center">{{ r.total_work_hours }} ชม.</td>
+                        <td class="px-6 py-4 text-center text-orange-600 font-medium">{{ r.ot_hours if r.ot_hours > 0 else '-' }}</td>
+                        <td class="px-6 py-4 text-center">
+                            {% if r.status == AttendanceStatus.PRESENT %}
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-1 rounded-full border border-green-200">ปกติ</span>
+                            {% elif r.status == AttendanceStatus.LATE %}
+                                <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-1 rounded-full border border-orange-200">สาย</span>
+                            {% elif r.status == AttendanceStatus.HALF_DAY %}
+                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded-full border border-blue-200">ครึ่งวัน</span>
+                            {% else %}
+                                <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-1 rounded-full border border-red-200">ขาดงาน</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-inbox text-3xl mb-3 text-gray-300"></i>
+                            <p>ยังไม่มีประวัติการลงเวลา</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

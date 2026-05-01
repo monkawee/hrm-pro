@@ -7,7 +7,8 @@ from app.models.menu import MenuTable
 from app.models.employee import Employee, Attachment, AttachmentCategory # เพิ่ม Model ใหม่
 from app.models.leave_request import LeaveRequest, LeaveType, LeaveStatus
 from app.models.payroll import Payroll, PayrollStatus
-from datetime import date
+from app.models.attendance import AttendanceRecord, Shift, AttendanceStatus
+from datetime import date, datetime
 
 def seed_data():
     print("⏳ [1/6] Cleaning old data...")
@@ -44,9 +45,13 @@ def seed_data():
             {"id": 6, "title": "ระบบการลา", "link": "#", "icon": "fas fa-calendar-check", "order": 3, "parent_id": None},
             {"id": 7,"title": "ประวัติการลา/อนุมัติ", "link": "/leaves", "icon": "fas fa-history", "order": 1, "parent_id": 6},
             {"id": 8,"title": "ยื่นใบลา", "link": "/leaves/request", "icon": "fas fa-file-signature", "order": 2, "parent_id": 6},
-            {"id": 9,"title": "ระบบเงินเดือน", "link": "#", "icon": "fas fa-money-check-dollar", "order": 4, "parent_id": None},
+            {"id": 9,"title": "ระบบเงินเดือน", "link": "#", "icon": "fas fa-money-check-dollar", "order": 5, "parent_id": None},
             {"id": 10,"title": "ประวัติเงินเดือน", "link": "/payroll", "icon": "fas fa-file-invoice-dollar", "order": 1, "parent_id": 9},
-            {"id": 11,"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 5, "parent_id": None, "required_roles": "top_manager"}
+            {"id": 11,"title": "ระบบเวลาเข้างาน", "link": "#", "icon": "fas fa-clock", "order": 4, "parent_id": None},
+            {"id": 12,"title": "ลงเวลาทำงาน", "link": "/attendance/check", "icon": "fas fa-fingerprint", "order": 1, "parent_id": 11},
+            {"id": 13,"title": "ประวัติลงเวลา", "link": "/attendance/history", "icon": "fas fa-history", "order": 2, "parent_id": 11},
+            {"id": 14,"title": "รายงานเวลาทำงาน", "link": "/attendance/report", "icon": "fas fa-file-export", "order": 3, "parent_id": 11, "required_roles": "top_manager,hr"},
+            {"id": 15,"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 6, "parent_id": None, "required_roles": "top_manager"}
         ]
         for m in menus_data:
             db.add(MenuTable(**m))
@@ -85,7 +90,19 @@ def seed_data():
             # ... (เพิ่ม Attachment ตามเดิม) ...
 
         db.commit()
-        print("✨ [6/6] Seeding completed successfully!")
+
+        # --- 6. Seeding Shifts ---
+        print("🌱 [6/6] Seeding Shifts...")
+        default_shift = Shift(
+            name="กะปกติ (09:00 - 18:00)",
+            start_time=datetime.strptime("09:00", "%H:%M").time(),
+            end_time=datetime.strptime("18:00", "%H:%M").time(),
+            late_grace_period=15
+        )
+        db.add(default_shift)
+        db.commit()
+
+        print("✨ Seeding completed successfully!")
 
     except Exception as e:
         db.rollback()
