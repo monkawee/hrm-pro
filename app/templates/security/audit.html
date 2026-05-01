@@ -1,0 +1,44 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Audit Logs - HRM PRO{% endblock %}
+{% block page_title %}Security & Audit Logs{% endblock %}
+
+{% block content %}
+<div class="max-w-full">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">System Logs</h2>
+        <a href="/security/backup" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
+            <i class="fas fa-database mr-2"></i>Download Database Backup
+        </a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-sm text-left">
+            <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
+                <tr>
+                    <th class="px-6 py-4">Timestamp</th>
+                    <th class="px-6 py-4">User</th>
+                    <th class="px-6 py-4">Action</th>
+                    <th class="px-6 py-4">IP Address</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for log in logs %}
+                <tr class="hover:bg-gray-50/50">
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="px-6 py-4 font-medium">{{ log.user.username if log.user else 'System / Unknown' }}</td>
+                    <td class="px-6 py-4 text-blue-600 font-bold">{{ log.action }}</td>
+                    <td class="px-6 py-4 text-gray-400 text-xs">{{ log.ip_address or 'Unknown' }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                        No logs available.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

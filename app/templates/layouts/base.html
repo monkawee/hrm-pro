@@ -123,6 +123,30 @@
         </div>
     </div>
 
+    <!-- PDPA Modal -->
+    {% if current_user and not current_user.pdpa_consented_at %}
+    <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4"><i class="fas fa-shield-alt text-blue-600 mr-2"></i> นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)</h2>
+            <div class="text-sm text-gray-600 space-y-3 mb-8 h-48 overflow-y-auto pr-2">
+                <p>บริษัทให้ความสำคัญกับการคุ้มครองข้อมูลส่วนบุคคลของคุณ เพื่อให้เป็นไปตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) เราขอแจ้งให้ทราบว่าระบบ HRM PRO จะมีการเก็บรวบรวม ใช้ และประมวลผลข้อมูลส่วนบุคคลของคุณเพื่อวัตถุประสงค์ดังต่อไปนี้:</p>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>เพื่อการบริหารจัดการทรัพยากรบุคคล การจ่ายเงินเดือน และสวัสดิการ</li>
+                    <li>เพื่อการบันทึกเวลาเข้า-ออกงาน รวมถึงข้อมูลพิกัด GPS</li>
+                    <li>เพื่อการประเมินผลการปฏิบัติงานและการฝึกอบรม</li>
+                </ul>
+                <p class="font-bold text-red-500 mt-4">* คุณต้องกดยอมรับนโยบายนี้ก่อนเข้าใช้งานระบบ</p>
+            </div>
+            <form action="/security/pdpa/accept" method="POST">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-colors">
+                    ข้าพเจ้าได้อ่านและยอมรับนโยบาย (Accept)
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
     <script>
         function toggleSubMenu(id) {
             const submenu = document.getElementById(id);

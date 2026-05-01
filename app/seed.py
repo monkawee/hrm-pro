@@ -8,6 +8,9 @@ from app.models.employee import Employee, Attachment, AttachmentCategory # เ�
 from app.models.leave_request import LeaveRequest, LeaveType, LeaveStatus
 from app.models.payroll import Payroll, PayrollStatus
 from app.models.attendance import AttendanceRecord, Shift, AttendanceStatus
+from app.models.performance import PerformanceReview, ReviewStatus
+from app.models.training import TrainingCourse, TrainingRecord, TrainingStatus
+from app.models.audit import AuditLog
 from datetime import date, datetime
 
 def seed_data():
@@ -51,7 +54,13 @@ def seed_data():
             {"id": 12,"title": "ลงเวลาทำงาน", "link": "/attendance/check", "icon": "fas fa-fingerprint", "order": 1, "parent_id": 11},
             {"id": 13,"title": "ประวัติลงเวลา", "link": "/attendance/history", "icon": "fas fa-history", "order": 2, "parent_id": 11},
             {"id": 14,"title": "รายงานเวลาทำงาน", "link": "/attendance/report", "icon": "fas fa-file-export", "order": 3, "parent_id": 11, "required_roles": "top_manager,hr"},
-            {"id": 15,"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 6, "parent_id": None, "required_roles": "top_manager"}
+            {"id": 15,"title": "การประเมินผล", "link": "#", "icon": "fas fa-star", "order": 6, "parent_id": None},
+            {"id": 16,"title": "ประเมินพนักงาน", "link": "/performance/evaluate", "icon": "fas fa-user-check", "order": 1, "parent_id": 15, "required_roles": "top_manager,manager,hr"},
+            {"id": 17,"title": "ดูผลประเมิน", "link": "/performance", "icon": "fas fa-chart-bar", "order": 2, "parent_id": 15},
+            {"id": 18,"title": "การฝึกอบรม", "link": "/training", "icon": "fas fa-graduation-cap", "order": 7, "parent_id": None},
+            {"id": 19,"title": "ระบบความปลอดภัย", "link": "#", "icon": "fas fa-shield-alt", "order": 8, "parent_id": None, "required_roles": "top_manager"},
+            {"id": 20,"title": "Audit Logs", "link": "/security/audit", "icon": "fas fa-history", "order": 1, "parent_id": 19, "required_roles": "top_manager"},
+            {"id": 21,"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 9, "parent_id": None, "required_roles": "top_manager"}
         ]
         for m in menus_data:
             db.add(MenuTable(**m))
@@ -100,6 +109,17 @@ def seed_data():
             late_grace_period=15
         )
         db.add(default_shift)
+        db.commit()
+
+        # --- 7. Seeding Training Courses ---
+        print("🌱 [7/7] Seeding Training Courses...")
+        courses_data = [
+            {"name": "ปฐมนิเทศพนักงานใหม่ (Orientation)", "description": "การปรับตัวและเรียนรู้วัฒนธรรมองค์กร", "iso_code": "HR-01", "trainer": "HR Team"},
+            {"name": "ความปลอดภัยในการทำงาน (Safety First)", "description": "หลักสูตรความปลอดภัยตามมาตรฐานสากล", "iso_code": "ISO45001", "trainer": "Safety Officer"},
+            {"name": "PDPA Awareness", "description": "ความรู้เรื่องกฎหมายคุ้มครองข้อมูลส่วนบุคคล", "iso_code": "PDPA-01", "trainer": "Legal Team"}
+        ]
+        for c in courses_data:
+            db.add(TrainingCourse(**c))
         db.commit()
 
         print("✨ Seeding completed successfully!")

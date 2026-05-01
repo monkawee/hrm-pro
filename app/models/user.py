@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -9,6 +9,7 @@ class UserTable(Base):
     username = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
+    pdpa_consented_at = Column(DateTime, nullable=True) # PDPA Consent Timestamp
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
     
     # --- Relationships ---

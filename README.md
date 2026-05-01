@@ -61,13 +61,13 @@ Password: 1234
   - คำนวณอัตโนมัติ, รองรับภาษี/ประกันสังคม/กองทุน (**เชื่อมต่ออัปเดตฟอร์มรัฐบาลได้**), Import OT, **ออก Slip ออนไลน์ (เชื่อมปริ๊นเตอร์ได้)**, Export ไฟล์ธนาคาร
 - [x] **3. ระบบลา (Leave Management)**
   - ลาออนไลน์ผ่านมือถือ, ตั้งประเภทลา, Workflow อนุมัติหลายขั้น, แสดงสิทธิคงเหลือ Real-time
-- [ ] **4. Performance / Evaluation**
+- [x] **4. Performance / Evaluation**
   - ประเมิน KPI, Workflow หลายระดับ, Dashboard วิเคราะห์ข้อมูล
-- [ ] **5. Training / Development**
+- [x] **5. Training / Development**
   - บันทึกประวัติอบรม (รองรับ ISO), วางแผน Training, แจ้งเตือน Certificate หมดอายุ, แบบประเมินผล
 - [x] **6. ข้อมูลพนักงาน (Employee Management)**
   - เก็บประวัติครบถ้วน (Profile, สัญญา, เงินเดือน), แนบเอกสารสำคัญ, Org Chart, ประวัติปรับตำแหน่ง
-- [ ] **7. Security & Compliance**
+- [x] **7. Security & Compliance**
   - กำหนดสิทธิ์ผู้ใช้, Log การใช้งาน, Backup ข้อมูล, และ **รองรับ PDPA/GDPR**
 
 Developed with ❤️ by monkawee

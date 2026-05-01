@@ -1,0 +1,54 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}ประเมินผลงาน (Performance) - HRM PRO{% endblock %}
+{% block page_title %}ระบบประเมินผลงาน (Performance & Evaluation){% endblock %}
+
+{% block content %}
+<div class="max-w-full">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">ข้อมูลประเมินผล</h2>
+        {% if user.role and user.role.name in ['hr', 'top_manager', 'manager'] %}
+        <a href="/performance/evaluate" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-sm">
+            <i class="fas fa-star-half-alt mr-2"></i>ประเมินพนักงาน
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-sm text-left">
+            <thead class="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-100">
+                <tr>
+                    <th class="px-6 py-4">ปี/ไตรมาส</th>
+                    <th class="px-6 py-4">พนักงาน</th>
+                    <th class="px-6 py-4 text-center">คะแนน KPI (100)</th>
+                    <th class="px-6 py-4">ความเห็นผู้ประเมิน</th>
+                    <th class="px-6 py-4 text-center">สถานะ</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for r in reviews %}
+                <tr class="hover:bg-gray-50/50">
+                    <td class="px-6 py-4 font-medium">{{ r.year }} / Q{{ r.quarter }}</td>
+                    <td class="px-6 py-4">{{ r.employee.first_name }} {{ r.employee.last_name }}</td>
+                    <td class="px-6 py-4 text-center font-bold {{ 'text-green-600' if r.kpi_score >= 80 else 'text-orange-500' }}">{{ r.kpi_score }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ r.feedback or '-' }}</td>
+                    <td class="px-6 py-4 text-center">
+                        {% if r.status == ReviewStatus.SUBMITTED %}
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">เสร็จสิ้น</span>
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">ฉบับร่าง</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                        ไม่มีข้อมูลการประเมิน
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
