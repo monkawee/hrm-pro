@@ -1,12 +1,17 @@
+import os
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-# ถ้าจะเปลี่ยนไปใช้ Database อื่น แค่เปลี่ยน URL ตรงนี้ครับ
-SQLALCHEMY_DATABASE_URL = "sqlite:///./data/hrm_pro.db"
+# ดึงค่าจาก Environment Variable หรือใช้ SQLite เป็น Default
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://neondb_owner:npg_CKNOAdgIk32E@ep-plain-cake-ao1z9qnt.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require")
+
+# ตั้งค่า connection args ตามชนิดของ Database
+connect_args = {}
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, connect_args=connect_args
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
