@@ -86,10 +86,12 @@ app.add_middleware(
 
 # --- 6. Helper สำหรับการ Render (FIXED: Starlette Parameter Order) ---
 def render(template_name: str, request: Request, context: dict = {}):
-    full_context = {"request": request}
-    full_context.update(context)
-    # ✅ ระบุ name และ context ป้องกัน TypeError unhashable
-    return templates.TemplateResponse(name=template_name, context=full_context)
+    # ปรับให้ส่ง request แยกออกมาตามกฎใหม่
+    return templates.TemplateResponse(
+        request=request, 
+        name=template_name, 
+        context=context
+    )
 
 # Register Routes
 app.include_router(dashboard.router)
