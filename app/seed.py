@@ -84,10 +84,11 @@ def seed_data():
         # --- 5. Seeding Employees (สร้างพนักงานมาผูกกับ User ID) ---
         print("🌱 [5/6] Seeding Employees & Documents...")
         emp_payload = [
-            {"code": "EMP001", "fname": "Super", "lname": "Administrator", "user_key": "admin", "salary": 80000},
+            {"code": "EMP001", "fname": "Super", "lname": "Administrator", "user_key": "admin", "salary": 60000},
             {"code": "EMP002", "fname": "HR", "lname": "Master", "user_key": "hr", "salary": 50000},
             {"code": "EMP003", "fname": "John", "lname": "Manager", "user_key": "manager1", "salary": 45000},
-            {"code": "EMP004", "fname": "Somchai", "lname": "Staff", "user_key": "staff1", "salary": 20000}
+            {"code": "EMP004", "fname": "Somchai", "lname": "Staff", "user_key": "staff1", "salary": 20000},
+            {"code": "EMP005", "fname": "C Level", "lname": "Boss", "user_key": "topmanager", "salary": 150000}
         ]
         
         for e in emp_payload:
