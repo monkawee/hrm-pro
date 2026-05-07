@@ -23,7 +23,8 @@ def seed_data():
         # --- 2. Seeding Roles ---
         print("🌱 [2/6] Seeding Roles...")
         roles_data = [
-            {"name": "hr", "display_name": "ฝ่ายบุคคล (Admin)"},
+            {"name": "admin", "display_name": "ผู้ดูแลระบบ (Admin)"},
+            {"name": "hr", "display_name": "ฝ่ายบุคคล (HR)"},
             {"name": "top_manager", "display_name": "ผู้บริหาร (Top Manager)"},
             {"name": "manager", "display_name": "หัวหน้างาน (Manager)"},
             {"name": "employee", "display_name": "พนักงานทั่วไป (Staff)"}
@@ -42,9 +43,9 @@ def seed_data():
             {"id": 1,"title": "Dashboard", "link": "/dashboard", "icon": "fas fa-chart-line", "order": 1, "parent_id": None},
             {"id": 2, "title": "จัดการบุคลากร", "link": "#", "icon": "fas fa-users-gear", "order": 2, "parent_id": None},
             # ปรับเมนูลูกให้สอดคล้องกับ Module 6
-            {"id": 3,"title": "ทะเบียนพนักงาน", "link": "/employees", "icon": "fas fa-address-card", "order": 1, "parent_id": 2, "required_roles": "top_manager,manager"},
-            {"id": 4,"title": "ข้อมูลผู้ใช้งานระบบ", "link": "/users", "icon": "fas fa-user-shield", "order": 2, "parent_id": 2, "required_roles": "top_manager"},
-            {"id": 5,"title": "กลุ่มผู้ใช้งานระบบ", "link": "/roles", "icon": "fas fa-users-cog", "order": 3, "parent_id": 2, "required_roles": "top_manager"},
+            {"id": 3,"title": "ทะเบียนพนักงาน", "link": "/employees", "icon": "fas fa-address-card", "order": 1, "parent_id": 2, "required_roles": "admin,hr,top_manager,manager"},
+            {"id": 4,"title": "ข้อมูลผู้ใช้งานระบบ", "link": "/users", "icon": "fas fa-user-shield", "order": 2, "parent_id": 2, "required_roles": "admin,hr,top_manager"},
+            {"id": 5,"title": "กลุ่มผู้ใช้งานระบบ", "link": "/roles", "icon": "fas fa-users-cog", "order": 3, "parent_id": 2, "required_roles": "admin,hr,top_manager"},
             {"id": 6, "title": "ระบบการลา", "link": "#", "icon": "fas fa-calendar-check", "order": 3, "parent_id": None},
             {"id": 7,"title": "ประวัติการลา/อนุมัติ", "link": "/leaves", "icon": "fas fa-history", "order": 1, "parent_id": 6},
             {"id": 8,"title": "ยื่นใบลา", "link": "/leaves/request", "icon": "fas fa-file-signature", "order": 2, "parent_id": 6},
@@ -53,14 +54,14 @@ def seed_data():
             {"id": 11,"title": "ระบบเวลาเข้างาน", "link": "#", "icon": "fas fa-clock", "order": 4, "parent_id": None},
             {"id": 12,"title": "ลงเวลาทำงาน", "link": "/attendance/check", "icon": "fas fa-fingerprint", "order": 1, "parent_id": 11},
             {"id": 13,"title": "ประวัติลงเวลา", "link": "/attendance/history", "icon": "fas fa-history", "order": 2, "parent_id": 11},
-            {"id": 14,"title": "รายงานเวลาทำงาน", "link": "/attendance/report", "icon": "fas fa-file-export", "order": 3, "parent_id": 11, "required_roles": "top_manager,hr"},
+            {"id": 14,"title": "รายงานเวลาทำงาน", "link": "/attendance/report", "icon": "fas fa-file-export", "order": 3, "parent_id": 11, "required_roles": "admin,hr,top_manager"},
             {"id": 15,"title": "การประเมินผล", "link": "#", "icon": "fas fa-star", "order": 6, "parent_id": None},
-            {"id": 16,"title": "ประเมินพนักงาน", "link": "/performance/evaluate", "icon": "fas fa-user-check", "order": 1, "parent_id": 15, "required_roles": "top_manager,manager,hr"},
+            {"id": 16,"title": "ประเมินพนักงาน", "link": "/performance/evaluate", "icon": "fas fa-user-check", "order": 1, "parent_id": 15, "required_roles": "admin,hr,top_manager,manager"},
             {"id": 17,"title": "ดูผลประเมิน", "link": "/performance", "icon": "fas fa-chart-bar", "order": 2, "parent_id": 15},
             {"id": 18,"title": "การฝึกอบรม", "link": "/training", "icon": "fas fa-graduation-cap", "order": 7, "parent_id": None},
-            {"id": 19,"title": "ระบบความปลอดภัย", "link": "#", "icon": "fas fa-shield-alt", "order": 8, "parent_id": None, "required_roles": "top_manager"},
-            {"id": 20,"title": "Audit Logs", "link": "/security/audit", "icon": "fas fa-history", "order": 1, "parent_id": 19, "required_roles": "top_manager"},
-            {"id": 21,"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 9, "parent_id": None, "required_roles": "top_manager"}
+            {"id": 19,"title": "ระบบความปลอดภัย", "link": "#", "icon": "fas fa-shield-alt", "order": 8, "parent_id": None, "required_roles": "admin,hr,top_manager"},
+            {"id": 20,"title": "Audit Logs", "link": "/security/audit", "icon": "fas fa-history", "order": 1, "parent_id": 19, "required_roles": "admin,hr,top_manager"},
+            {"id": 21,"title": "ตั้งค่าเมนู", "link": "/menus", "icon": "fas fa-list-check", "order": 9, "parent_id": None, "required_roles": "admin,hr,top_manager"}
         ]
         for m in menus_data:
             db.add(MenuTable(**m))
@@ -69,7 +70,9 @@ def seed_data():
         # --- 4. Seeding Users (สร้าง User รอไว้ก่อน) ---
         print("🌱 [4/6] Seeding Users...")
         users_data = [
-            {"full_name": "Admin Boss", "username": "admin", "password": "123", "role_id": role_map["top_manager"]},
+            {"full_name": "Administrator", "username": "admin", "password": "123", "role_id": role_map["admin"]},
+            {"full_name": "HR Master", "username": "hr", "password": "123", "role_id": role_map["hr"]},
+            {"full_name": "Top Manager Boss", "username": "topmanager", "password": "123", "role_id": role_map["top_manager"]},
             {"full_name": "Manager John", "username": "manager1", "password": "123", "role_id": role_map["manager"]},
             {"full_name": "Staff Somchai", "username": "staff1", "password": "123", "role_id": role_map["employee"]}
         ]
@@ -81,9 +84,10 @@ def seed_data():
         # --- 5. Seeding Employees (สร้างพนักงานมาผูกกับ User ID) ---
         print("🌱 [5/6] Seeding Employees & Documents...")
         emp_payload = [
-            {"code": "EMP001", "fname": "Senior", "lname": "Boss", "user_key": "admin", "salary": 80000},
-            {"code": "EMP002", "fname": "John", "lname": "Manager", "user_key": "manager1", "salary": 45000},
-            {"code": "EMP003", "fname": "Somchai", "lname": "Staff", "user_key": "staff1", "salary": 20000}
+            {"code": "EMP001", "fname": "Super", "lname": "Administrator", "user_key": "admin", "salary": 80000},
+            {"code": "EMP002", "fname": "HR", "lname": "Master", "user_key": "hr", "salary": 50000},
+            {"code": "EMP003", "fname": "John", "lname": "Manager", "user_key": "manager1", "salary": 45000},
+            {"code": "EMP004", "fname": "Somchai", "lname": "Staff", "user_key": "staff1", "salary": 20000}
         ]
         
         for e in emp_payload:
