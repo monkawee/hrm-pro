@@ -18,11 +18,19 @@ async def list_roles(request: Request, db: Session = Depends(get_db), user = Dep
     # ดึงข้อมูลผ่าน Service
     roles = RoleService.get_all_roles(db)
     
-    return templates.TemplateResponse("roles/roles.html", {
-        "request": request, 
-        "roles": roles, 
-        "user": user
-    })
+    # return templates.TemplateResponse("roles/roles.html", {
+    #     "request": request, 
+    #     "roles": roles, 
+    #     "user": user
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="roles/roles.html", 
+        context={
+            "user": user,
+            "roles": roles
+        }
+    )
 
 # --- 2. API เพิ่ม Role ใหม่ ---
 @router.post("/add")

@@ -31,12 +31,21 @@ async def performance_list(
         else:
             reviews = []
 
-    return templates.TemplateResponse("performance/index.html", {
-        "request": request,
-        "user": user,
-        "reviews": reviews,
-        "ReviewStatus": ReviewStatus
-    })
+    # return templates.TemplateResponse("performance/index.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "reviews": reviews,
+    #     "ReviewStatus": ReviewStatus
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="performance/index.html", 
+        context={
+            "user": user,
+            "reviews": reviews,
+            "ReviewStatus": ReviewStatus
+        }
+    )
 
 @router.get("/evaluate", response_class=HTMLResponse)
 async def evaluate_view(
@@ -48,11 +57,19 @@ async def evaluate_view(
         return RedirectResponse(url="/performance")
         
     employees = db.query(Employee).filter(Employee.is_active == True).all()
-    return templates.TemplateResponse("performance/evaluate.html", {
-        "request": request,
-        "user": user,
-        "employees": employees
-    })
+    # return templates.TemplateResponse("performance/evaluate.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "employees": employees
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="performance/evaluate.html", 
+        context={
+            "user": user,
+            "employees": employees
+        }
+    )
 
 @router.post("/evaluate")
 async def evaluate_action(

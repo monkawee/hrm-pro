@@ -36,11 +36,19 @@ async def audit_logs_view(
         
     logs = db.query(AuditLog).order_by(AuditLog.timestamp.desc()).limit(200).all()
     
-    return templates.TemplateResponse("security/audit.html", {
-        "request": request,
-        "user": user,
-        "logs": logs
-    })
+    # return templates.TemplateResponse("security/audit.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "logs": logs
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="security/audit.html", 
+        context={
+            "user": user,
+            "logs": logs
+        }
+    )
 
 @router.get("/backup")
 async def download_backup(

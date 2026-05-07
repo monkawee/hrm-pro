@@ -30,14 +30,25 @@ async def training_list(
         else:
             records = []
 
-    return templates.TemplateResponse("training/index.html", {
-        "request": request,
-        "user": user,
-        "courses": courses,
-        "records": records,
-        "TrainingStatus": TrainingStatus,
-        "today": datetime.now().date()
-    })
+    # return templates.TemplateResponse("training/index.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "courses": courses,
+    #     "records": records,
+    #     "TrainingStatus": TrainingStatus,
+    #     "today": datetime.now().date()
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="training/index.html", 
+        context={
+            "user": user,
+            "courses": courses,
+            "records": records,
+            "TrainingStatus": TrainingStatus,
+            "today": datetime.now().date()
+        }
+    )   
 
 @router.post("/enroll")
 async def enroll_course(

@@ -29,11 +29,19 @@ async def check_view(
         AttendanceRecord.date == today
     ).first()
     
-    return templates.TemplateResponse("attendance/check.html", {
-        "request": request,
-        "user": user,
-        "record": record
-    })
+    # return templates.TemplateResponse("attendance/check.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "record": record
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="attendance/check.html", 
+        context={
+            "user": user,
+            "record": record
+        }
+    )
 
 @router.post("/action")
 async def check_action(
@@ -104,12 +112,21 @@ async def history_view(
         AttendanceRecord.employee_id == user.employee.id
     ).order_by(AttendanceRecord.date.desc()).all()
     
-    return templates.TemplateResponse("attendance/history.html", {
-        "request": request,
-        "user": user,
-        "records": records,
-        "AttendanceStatus": AttendanceStatus
-    })
+    # return templates.TemplateResponse("attendance/history.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "records": records,
+    #     "AttendanceStatus": AttendanceStatus
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="attendance/history.html", 
+        context={
+            "user": user,
+            "records": records,
+            "AttendanceStatus": AttendanceStatus
+        }
+    )
 
 @router.get("/report", response_class=HTMLResponse)
 async def report_view(
@@ -122,12 +139,21 @@ async def report_view(
         
     records = db.query(AttendanceRecord).order_by(AttendanceRecord.date.desc()).all()
     
-    return templates.TemplateResponse("attendance/report.html", {
-        "request": request,
-        "user": user,
-        "records": records,
-        "AttendanceStatus": AttendanceStatus
-    })
+    # return templates.TemplateResponse("attendance/report.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "records": records,
+    #     "AttendanceStatus": AttendanceStatus
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="attendance/report.html", 
+        context={
+            "user": user,
+            "records": records,
+            "AttendanceStatus": AttendanceStatus
+        }
+    )
 
 @router.get("/export")
 async def export_csv(

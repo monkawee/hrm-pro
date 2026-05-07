@@ -28,9 +28,18 @@ async def dashboard(
     
     recent_employees = db.query(Employee).order_by(Employee.id.desc()).limit(5).all()
 
-    return templates.TemplateResponse("dashboard.html", {
-        "request": request,
-        "user": user,
-        "stats": stats,
-        "recent_employees": recent_employees
-    })
+    # return templates.TemplateResponse("dashboard.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "stats": stats,
+    #     "recent_employees": recent_employees
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="dashboard.html", 
+        context={
+            "user": user,
+            "stats": stats,
+            "recent_employees": recent_employees
+        }
+    )

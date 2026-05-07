@@ -32,12 +32,21 @@ async def payroll_list(
         else:
             payrolls = []
 
-    return templates.TemplateResponse("payroll/index.html", {
-        "request": request,
-        "user": user,
-        "payrolls": payrolls,
-        "PayrollStatus": PayrollStatus
-    })
+    # return templates.TemplateResponse("payroll/index.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "payrolls": payrolls,
+    #     "PayrollStatus": PayrollStatus
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="payroll/index.html", 
+        context={
+            "user": user,
+            "payrolls": payrolls,
+            "PayrollStatus": PayrollStatus
+        }
+    )
 
 @router.post("/generate")
 async def generate_payroll(
@@ -98,12 +107,21 @@ async def view_slip(
     if role_name not in ["hr", "top_manager"] and payroll.employee_id != user.employee.id:
         return RedirectResponse(url="/payroll")
 
-    return templates.TemplateResponse("payroll/slip.html", {
-        "request": request,
-        "user": user,
-        "payroll": payroll,
-        "PayrollStatus": PayrollStatus
-    })
+    # return templates.TemplateResponse("payroll/slip.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "payroll": payroll,
+    #     "PayrollStatus": PayrollStatus
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="payroll/slip.html", 
+        context={
+            "user": user,
+            "payroll": payroll,
+            "PayrollStatus": PayrollStatus
+        }
+    )
 
 @router.post("/{payroll_id}/status")
 async def update_payroll_status(

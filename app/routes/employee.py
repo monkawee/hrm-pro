@@ -23,13 +23,23 @@ async def list_employees(
     # ดึง User ทั้งหมดที่ยังไม่ได้ผูกกับใคร (สำหรับหน้า Add/Edit)
     unlinked_users = UserService.get_unlinked_users(db)
     
-    return templates.TemplateResponse("employees/employees.html", {
-        "request": request,
-        "employees": employees,
-        "unlinked_users": unlinked_users,
-        "user": user,
-        "today": datetime.now().strftime("%Y-%m-%d")
-    })
+    # return templates.TemplateResponse("employees/employees.html", {
+    #     "request": request,
+    #     "employees": employees,
+    #     "unlinked_users": unlinked_users,
+    #     "user": user,
+    #     "today": datetime.now().strftime("%Y-%m-%d")
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="employees/employees.html", 
+        context={
+            "user": user,
+            "employees": employees,
+            "unlinked_users": unlinked_users,
+            "today": datetime.now().strftime("%Y-%m-%d")
+        }
+    )
 
 @router.post("/add")
 async def add_employee(

@@ -18,12 +18,21 @@ async def list_users(request: Request, db: Session = Depends(get_db), user = Dep
     users = UserService.get_all_users(db)
     roles = db.query(RoleTable).all()
     
-    return templates.TemplateResponse("users/users.html", {
-        "request": request,
-        "users": users,
-        "user": user,
-        "roles": roles
-    })
+    # return templates.TemplateResponse("users/users.html", {
+    #     "request": request,
+    #     "users": users,
+    #     "user": user,
+    #     "roles": roles
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="users/users.html", 
+        context={
+            "user": user,
+            "users": users,
+            "roles": roles
+        }
+    )
 
 @router.post("/add")
 async def add_user(

@@ -21,12 +21,21 @@ async def list_menus(request: Request, db: Session = Depends(get_db), user = Dep
     menus_list = MenuService.get_all_menus(db)
     roles = RoleService.get_all_roles(db, only_active=True)
     
-    return templates.TemplateResponse("menus/menus.html", {
-        "request": request,
-        "menus_list": menus_list,
-        "roles": roles,
-        "user": user
-    })
+    # return templates.TemplateResponse("menus/menus.html", {
+    #     "request": request,
+    #     "menus_list": menus_list,
+    #     "roles": roles,
+    #     "user": user
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="menus/menus.html", 
+        context={
+            "user": user,
+            "menus_list": menus_list,
+            "roles": roles
+        }
+    )
 
 @router.post("/add")
 async def add_menu(

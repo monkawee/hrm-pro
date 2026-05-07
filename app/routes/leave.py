@@ -41,13 +41,23 @@ async def leave_list(
         else:
             leaves = []
 
-    return templates.TemplateResponse("leave/index.html", {
-        "request": request,
-        "user": user,
-        "leaves": leaves,
-        "LeaveStatus": LeaveStatus,
-        "LeaveType": LeaveType
-    })
+    # return templates.TemplateResponse("leave/index.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "leaves": leaves,
+    #     "LeaveStatus": LeaveStatus,
+    #     "LeaveType": LeaveType
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="leave/index.html", 
+        context={
+            "user": user,
+            "leaves": leaves,
+            "LeaveStatus": LeaveStatus,
+            "LeaveType": LeaveType
+        }
+    )   
 
 @router.get("/request", response_class=HTMLResponse)
 async def leave_request_form(
@@ -61,11 +71,19 @@ async def leave_request_form(
         # Cannot request leave if not an employee
         return RedirectResponse(url="/leaves")
 
-    return templates.TemplateResponse("leave/form.html", {
-        "request": request,
-        "user": user,
-        "LeaveType": LeaveType
-    })
+    # return templates.TemplateResponse("leave/form.html", {
+    #     "request": request,
+    #     "user": user,
+    #     "LeaveType": LeaveType
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="leave/form.html", 
+        context={
+            "user": user,
+            "LeaveType": LeaveType
+        }
+    )
 
 @router.post("/request")
 async def submit_leave_request(

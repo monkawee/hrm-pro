@@ -13,7 +13,15 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, error: Optional[str] = None):
-    return templates.TemplateResponse(request=request,name="login.html",context={"error": error})
+    # return templates.TemplateResponse(request=request,name="login.html",context={"error": error})
+    return templates.TemplateResponse(
+        request=request, 
+        name="login.html", 
+        context={
+            "user": user,
+            "record": record
+        }
+    )
 
 @router.post("/login")
 async def login(request: Request, username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
@@ -25,10 +33,17 @@ async def login(request: Request, username: str = Form(...), password: str = For
         # 🌟 2. Redirect ไป Dashboard ด้วย 303
         return RedirectResponse(url="/dashboard", status_code=status.HTTP_303_SEE_OTHER)
         
-    return templates.TemplateResponse("login.html", {
-        "request": request, 
-        "error": "Username หรือ Password ไม่ถูกต้อง"
-    })
+    # return templates.TemplateResponse("login.html", {
+    #     "request": request, 
+    #     "error": "Username หรือ Password ไม่ถูกต้อง"
+    # })
+    return templates.TemplateResponse(
+        request=request, 
+        name="login.html", 
+        context={
+            "error": error
+        }
+    )
 
 @router.get("/logout")
 async def logout(request: Request): # เพิ่ม request เข้ามาด้วย
