@@ -14,9 +14,12 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
     {% set current_user = get_user(request) %}
+    <!-- Mobile Sidebar Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-40 hidden md:hidden transition-opacity duration-300" onclick="toggleMobileMenu()"></div>
+
     <div class="flex min-h-screen">
-        <aside class="w-64 bg-slate-900 text-white flex-shrink-0 hidden md:flex flex-col p-4">
-            <div class="mb-8 px-4 py-2">
+        <aside id="sidebar" class="w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col p-4 fixed inset-y-0 left-0 z-50 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div class="mb-8 px-4 py-2 flex items-center justify-between">
                 <a href="/dashboard" class="flex items-center gap-3 group transition-all duration-300">
                     {% if app_config.PROJECT_LOGO %}
                         <img src="{{ app_config.PROJECT_LOGO }}" alt="Logo" class="h-8 w-auto object-contain group-hover:scale-105 transition">
@@ -31,6 +34,9 @@
                         </div>
                     {% endif %}
                 </a>
+                <button class="md:hidden text-slate-400 hover:text-white" onclick="toggleMobileMenu()">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
             
             <nav class="space-y-1 flex-1">
@@ -87,10 +93,15 @@
             </div>
         </aside>
 
-        <div class="flex-1 flex flex-col">
-            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm">
-                <div class="text-sm text-gray-500">
-                    หน้าปัจจุบัน: <span class="font-semibold text-gray-800">{% block page_title %}{% endblock %}</span>
+        <div class="flex-1 flex flex-col w-full min-w-0">
+            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-8 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <button class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="text-sm text-gray-500 hidden sm:block">
+                        หน้าปัจจุบัน: <span class="font-semibold text-gray-800">{% block page_title %}{% endblock %}</span>
+                    </div>
                 </div>
                 
                 <div class="flex items-center gap-4">
@@ -117,7 +128,7 @@
                 </div>
             </header>
 
-            <main class="p-8">
+            <main class="p-4 md:p-8 flex-1 overflow-x-hidden">
                 {% block content %}{% endblock %}
             </main>
         </div>
@@ -159,6 +170,19 @@
                     submenu.classList.add('hidden');
                     if (icon) icon.classList.remove('rotate-180');
                 }
+            }
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
             }
         }
 
