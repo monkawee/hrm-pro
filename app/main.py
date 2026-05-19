@@ -14,6 +14,7 @@ from app.core.database import engine, Base, get_db
 from app.seed import seed_data  # ✅ ดึงฟังก์ชันมาจาก seed.py ของพี่ไม้
 from app.routes import auth, user, role, menu, employee, dashboard, leave, payroll, attendance, performance, training, security
 from app.api import mobile_api
+from app.core.i18n import get_translator
 
 app = FastAPI(title="HRM PRO - Enterprise Demo")
 
@@ -46,6 +47,10 @@ app.mount("/static", StaticFiles(directory=str(base_path / "static")), name="sta
 # --- 4. Middleware มหาอุด (จัดการ Session และเมนู RBAC) ---
 @app.middleware("http")
 async def add_data_to_state(request: Request, call_next):
+    # Setup Language
+    lang = request.session.get("lang", "th") if "session" in request.scope else "th"
+    request.state._ = get_translator(lang)
+
     # ดึง user_id จาก session ถ้ามี (ดักพังกรณี session ยังไม่เริ่ม)
     user_id = request.session.get("user_id") if "session" in request.scope else None
     
@@ -85,7 +90,12 @@ app.add_middleware(
 )
 
 # --- 6. Helper สำหรับการ Render (FIXED: Starlette Parameter Order) ---
-def render(template_name: str, request: Request, context: dict = {}):
+def render(template_name: str, request: Request, context: dict = None):
+    if context is None:
+        context = {}
+    context["_"] = getattr(request.state, "_", lambda x: x)
+    context["current_lang"] = request.session.get("lang", "th") if "session" in request.scope else "th"
+    
     # ปรับให้ส่ง request แยกออกมาตามกฎใหม่
     return templates.TemplateResponse(
         request=request, 
@@ -111,3 +121,10 @@ app.include_router(security.router)
 @app.get("/")
 async def root():
     return RedirectResponse(url="/login")
+
+@app.get("/set-language/{lang}")
+async def set_language(lang: str, request: Request):
+    if "session" in request.scope:
+        request.session["lang"] = lang
+    referer = request.headers.get("referer", "/")
+    return RedirectResponse(url=referer)

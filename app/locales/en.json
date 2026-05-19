@@ -1,0 +1,23 @@
+{
+  "ออกจากระบบ": "Logout",
+  "หน้าปัจจุบัน:": "Current Page:",
+  "นโยบายคุ้มครองข้อมูลส่วนบุคคล (PDPA)": "Personal Data Protection Policy (PDPA)",
+  "บริษัทให้ความสำคัญกับการคุ้มครองข้อมูลส่วนบุคคลของคุณ เพื่อให้เป็นไปตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) เราขอแจ้งให้ทราบว่าระบบ HRM PRO จะมีการเก็บรวบรวม ใช้ และประมวลผลข้อมูลส่วนบุคคลของคุณเพื่อวัตถุประสงค์ดังต่อไปนี้:": "The company values your privacy. To comply with the PDPA B.E. 2562, HRM PRO collects and processes your data for:",
+  "เพื่อการบริหารจัดการทรัพยากรบุคคล การจ่ายเงินเดือน และสวัสดิการ": "Human resource management, payroll, and benefits.",
+  "เพื่อการบันทึกเวลาเข้า-ออกงาน รวมถึงข้อมูลพิกัด GPS": "Time attendance tracking, including GPS coordinates.",
+  "เพื่อการประเมินผลการปฏิบัติงานและการฝึกอบรม": "Performance evaluation and training.",
+  "* คุณต้องกดยอมรับนโยบายนี้ก่อนเข้าใช้งานระบบ": "* You must accept this policy before accessing the system.",
+  "ข้าพเจ้าได้อ่านและยอมรับนโยบาย (Accept)": "I have read and accept the policy",
+  "แดชบอร์ด": "Dashboard",
+  "ข้อมูลพนักงาน": "Employee Data",
+  "ระบบลางาน": "Leave System",
+  "ระบบลงเวลา": "Attendance",
+  "ระบบเงินเดือน": "Payroll",
+  "ประเมินผล": "Performance",
+  "ฝึกอบรม": "Training",
+  "ตั้งค่าระบบ": "System Settings",
+  "จัดการสิทธิ์": "Roles Management",
+  "จัดการผู้ใช้งาน": "Users Management",
+  "โครงสร้างองค์กร": "Organization Chart",
+  "รายงาน": "Reports"
+}
