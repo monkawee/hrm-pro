@@ -31,7 +31,7 @@ async def audit_logs_view(
     db: Session = Depends(get_db),
     user: UserTable = Depends(get_current_user)
 ):
-    if not user or user.role.name != "top_manager":
+    if not user or user.role.name not in ["admin", "hr", "top_manager"]:
         return RedirectResponse(url="/dashboard")
         
     logs = db.query(AuditLog).order_by(AuditLog.timestamp.desc()).limit(200).all()

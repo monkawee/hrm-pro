@@ -13,6 +13,7 @@ from app.core.config import templates, settings
 from app.core.database import engine, Base, get_db
 from app.seed import seed_data  # ✅ ดึงฟังก์ชันมาจาก seed.py ของพี่ไม้
 from app.routes import auth, user, role, menu, employee, dashboard, leave, payroll, attendance, performance, training, security
+from app.services.audit_service import AuditService
 from app.api import mobile_api
 from app.core.i18n import get_translator
 
@@ -77,10 +78,37 @@ async def add_data_to_state(request: Request, call_next):
         for m in accessible_list:
             if m.parent_id is None:
                 m.children = [c for c in accessible_list if c.parent_id == m.id]
+                # ซ่อนโฟลเดอร์เมนู (link เป็น #) ที่ไม่มีเมนูลูกข้างใน
+                if (m.link == "#" or not m.link) and not m.children:
+                    continue
                 final_tree.append(m)
         request.state.menus = final_tree
 
     return await call_next(request)
+
+# --- 4.5 Audit Log Middleware ---
+@app.middleware("http")
+async def audit_log_middleware(request: Request, call_next):
+    response = await call_next(request)
+    
+    # บันทึกทุก Transaction ที่มีการเปลี่ยนแปลงข้อมูล (และสำเร็จ)
+    if request.method in ["POST", "PUT", "DELETE", "PATCH"] and response.status_code < 400:
+        user_id = request.session.get("user_id") if "session" in request.scope else None
+        if user_id:
+            # ไม่ต้อง log หน้า login ซ้ำซ้อนเพราะ auth.py จัดการแล้ว
+            if "/login" not in request.url.path and "/logout" not in request.url.path:
+                with contextlib.closing(next(get_db())) as db:
+                    action = f"{request.method} {request.url.path}"
+                    ip = request.client.host if request.client else "Unknown"
+                    AuditService.log_action(
+                        db=db, 
+                        user_id=user_id, 
+                        action=action, 
+                        ip_address=ip, 
+                        details=f"System auto-log (Status: {response.status_code})"
+                    )
+                    
+    return response
 
 # --- 5. Session Middleware (ต้องอยู่ล่างสุดเพื่อให้ request.session มีค่าใน Middleware อื่นๆ) ---
 app.add_middleware(

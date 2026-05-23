@@ -19,11 +19,16 @@ async def dashboard(
     if not user:
         return RedirectResponse(url="/login")
 
+    my_subordinates = 0
+    if user.employee:
+        my_subordinates = db.query(Employee).filter(Employee.manager_id == user.employee.id).count()
+
     # ดึงข้อมูลจริงจาก DB
     stats = {
         "total_employees": db.query(Employee).count(),
         "total_users": db.query(UserTable).count(),
         "active_employees": db.query(Employee).filter(Employee.is_active == True).count(),
+        "my_subordinates": my_subordinates,
     }
     
     recent_employees = db.query(Employee).order_by(Employee.id.desc()).limit(5).all()

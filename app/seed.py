@@ -43,7 +43,7 @@ def seed_data():
             {"id": 1,"title": "Dashboard", "link": "/dashboard", "icon": "fas fa-chart-line", "order": 1, "parent_id": None},
             {"id": 2, "title": "จัดการบุคลากร", "link": "#", "icon": "fas fa-users-gear", "order": 2, "parent_id": None},
             # ปรับเมนูลูกให้สอดคล้องกับ Module 6
-            {"id": 3,"title": "ทะเบียนพนักงาน", "link": "/employees", "icon": "fas fa-address-card", "order": 1, "parent_id": 2, "required_roles": "admin,hr,top_manager,manager"},
+            {"id": 3,"title": "ทะเบียนพนักงาน", "link": "/employees", "icon": "fas fa-address-card", "order": 1, "parent_id": 2, "required_roles": "admin,hr,top_manager"},
             {"id": 4,"title": "ข้อมูลผู้ใช้งานระบบ", "link": "/users", "icon": "fas fa-user-shield", "order": 2, "parent_id": 2, "required_roles": "admin,hr,top_manager"},
             {"id": 5,"title": "กลุ่มผู้ใช้งานระบบ", "link": "/roles", "icon": "fas fa-users-cog", "order": 3, "parent_id": 2, "required_roles": "admin,hr,top_manager"},
             {"id": 6, "title": "ระบบการลา", "link": "#", "icon": "fas fa-calendar-check", "order": 3, "parent_id": None},
@@ -84,23 +84,28 @@ def seed_data():
         # --- 5. Seeding Employees (สร้างพนักงานมาผูกกับ User ID) ---
         print("🌱 [5/6] Seeding Employees & Documents...")
         emp_payload = [
-            {"code": "EMP001", "fname": "Super", "lname": "Administrator", "user_key": "admin", "salary": 60000},
-            {"code": "EMP002", "fname": "HR", "lname": "Master", "user_key": "hr", "salary": 50000},
-            {"code": "EMP003", "fname": "John", "lname": "Manager", "user_key": "manager1", "salary": 45000},
-            {"code": "EMP004", "fname": "Somchai", "lname": "Staff", "user_key": "staff1", "salary": 20000},
-            {"code": "EMP005", "fname": "C Level", "lname": "Boss", "user_key": "topmanager", "salary": 150000}
+            {"code": "EMP001", "fname": "Super", "lname": "Administrator", "user_key": "admin", "salary": 60000, "manager_code": None},
+            {"code": "EMP005", "fname": "C Level", "lname": "Boss", "user_key": "topmanager", "salary": 150000, "manager_code": None},
+            {"code": "EMP002", "fname": "HR", "lname": "Master", "user_key": "hr", "salary": 50000, "manager_code": "EMP005"},
+            {"code": "EMP003", "fname": "John", "lname": "Manager", "user_key": "manager1", "salary": 45000, "manager_code": "EMP005"},
+            {"code": "EMP004", "fname": "Somchai", "lname": "Staff", "user_key": "staff1", "salary": 20000, "manager_code": "EMP003"}
         ]
         
+        emp_obj_map = {}
         for e in emp_payload:
+            manager_id = emp_obj_map[e["manager_code"]] if e["manager_code"] else None
             new_emp = Employee(
                 employee_code=e["code"],
                 first_name=e["fname"],
                 last_name=e["lname"],
-                user_id=user_map[e["user_key"]], # ผูกตรงนี้!
+                user_id=user_map[e["user_key"]], 
+                manager_id=manager_id,
                 join_date=date(2024, 1, 1),
                 base_salary=e["salary"]
             )
             db.add(new_emp)
+            db.flush()
+            emp_obj_map[e["code"]] = new_emp.id
             # ... (เพิ่ม Attachment ตามเดิม) ...
 
         db.commit()

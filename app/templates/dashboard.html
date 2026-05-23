@@ -5,6 +5,7 @@
 
 {% block content %}
 <div class="max-w-full">
+    {% if user.role.name not in ['manager', 'employee'] %}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
             <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-xl">
@@ -26,6 +27,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <h3 class="text-xl font-bold mb-2 text-gray-800">
@@ -36,7 +38,11 @@
         </h3>
         
         <p class="text-gray-600">
-            วันนี้คุณมีพนักงานที่ต้องดูแลทั้งหมด {{ stats.total_employees }} ท่าน ในระบบ HRM PRO
+            {% if user.role.name not in ['manager', 'employee'] %}
+                วันนี้คุณมีพนักงานที่ต้องดูแลทั้งหมด {{ stats.my_subordinates }} ท่าน ในระบบ HRM PRO
+            {% else %}
+                ยินดีต้อนรับเข้าสู่ระบบ HRM PRO ขอให้วันนี้เป็นวันที่ดี!
+            {% endif %}
         </p>
         
         <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">

@@ -18,6 +18,8 @@ async def list_employees(
 ):
     if not user:
         return RedirectResponse(url="/login")
+    if user.role.name not in ["admin", "hr", "top_manager"]:
+        return RedirectResponse(url="/dashboard")
     
     employees = EmployeeService.get_all(db)
     # ดึง User ทั้งหมดที่ยังไม่ได้ผูกกับใคร (สำหรับหน้า Add/Edit)
