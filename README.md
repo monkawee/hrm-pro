@@ -1,30 +1,102 @@
-# 🚀 HRM PRO - Enterprise Employee Management
-
-ระบบบริหารจัดการทรัพยากรบุคคล (HRM) ยุคใหม่ที่เน้นความเร็ว ความปลอดภัย และ UI ที่เป็นมิตรกับผู้ใช้งาน พัฒนาด้วย **FastAPI** และ **SQLAlchemy** พร้อมระบบฐานข้อมูลภายในตัว
+# HRM Pro — Human Resource Management System
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
 ![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-## ✨ Highlight Features
-- 🏢 **Comprehensive HR Modules:** ครอบคลุมการทำงานตั้งแต่ข้อมูลพนักงาน เวลาเข้างาน การลา ไปจนถึงการประเมินผลและฝึกอบรม
-- ⚙️ **Automated Payroll & Integration:** ระบบคำนวณเงินเดือนอัตโนมัติที่รองรับทั้งภาษีและประกันสังคม พร้อมการ **เชื่อมต่อระบบฟอร์มรัฐบาล** ได้โดยตรง
-- 📱 **Mobile Ready & Paperless:** รองรับการยื่นใบลา และ **ออก Slip เงินเดือนออนไลน์** ผ่านระบบดิจิทัล 100%
-- 🔐 **Security & PDPA Compliant:** ปลอดภัยขั้นสุดด้วยระบบแบ่งสิทธิ์ผู้ใช้ (RBAC) เก็บ Log และสอดคล้องกับมาตรฐาน **PDPA/GDPR**
-- 🚀 **High Performance & Offline-First:** โหลดทรัพยากร (CSS/Fonts) จากเครื่อง 100% ขับเคลื่อนด้วยความเร็วระดับ Enterprise ของ FastAPI
+**EN:** A web-based HR management system covering employees, time attendance, leave, payroll, performance, and training. Built with FastAPI and SQLAlchemy.
 
-## 🛠️ Tech Stack
-- **Backend:** Python 3.8+ (FastAPI)
-- **ORM:** SQLAlchemy (SQLite)
-- **Frontend:** HTML5, Tailwind CSS (Standalone), FontAwesome 6
-- **Template Engine:** Jinja2
+**TH:** ระบบบริหารงานบุคคลบนเว็บ ครอบคลุมข้อมูลพนักงาน เวลาเข้างาน การลา เงินเดือน การประเมินผล และการฝึกอบรม พัฒนาด้วย FastAPI และ SQLAlchemy
 
-## 🚀 Getting Started
+> **Status:** Working prototype / portfolio project. Not yet production-hardened.
+> สถานะ: ต้นแบบที่ใช้งานได้ (prototype) ยังไม่พร้อมใช้งานจริงระดับ production
 
-### 1. Clone the repository
+---
+
+## Screenshots
+
+<!-- Upload images to docs/screenshots/ then remove this comment -->
+| Dashboard | Employees | Payslip |
+|---|---|---|
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Employees](docs/screenshots/employees.png) | ![Payslip](docs/screenshots/payslip.png) |
+
+---
+
+## Features & Status
+
+✅ Implemented · 🟡 Partial · 📝 Planned
+
+| Module | Feature | Status |
+|---|---|---|
+| **Employee Management** | Profile, contract, salary history, document attachments | ✅ |
+| | Org chart, position change history | ✅ |
+| **Time Attendance** | Check-in/out, shifts, OT, late/absence calculation | ✅ |
+| | Attendance report export (pre-payroll) | ✅ |
+| | Mobile / face / fingerprint / GPS check-in | 📝 |
+| **Leave Management** | Online leave request, leave types, balance display | ✅ |
+| | Multi-level approval workflow | ✅ |
+| **Payroll** | Salary calculation with tax, social security, provident fund | ✅ |
+| | Online payslip | ✅ |
+| | Government form integration, bank file export, printer output | 📝 |
+| **Performance** | KPI evaluation, multi-level workflow, dashboard | ✅ |
+| **Training** | Training records and planning | ✅ |
+| | Certificate expiry alerts | 🟡 |
+| **Security** | Role-based access control (RBAC), activity log | ✅ |
+| | Data backup | 🟡 |
+| | PDPA / GDPR compliance review | 📝 |
+
+---
+
+## Tech Stack
+
+- **Backend:** Python 3.8+, FastAPI
+- **ORM / Database:** SQLAlchemy, SQLite
+- **Frontend:** Jinja2 templates, Tailwind CSS (standalone), Font Awesome 6
+- **Assets:** served locally (offline-capable, no CDN dependency)
+
+---
+
+## Getting Started
+
 ```bash
-git clone [https://github.com/monkawee/hrm-pro.git](https://github.com/monkawee/hrm-pro.git)
+# 1. Clone
+git clone https://github.com/monkawee/hrm-pro.git
 cd hrm-pro
+
+# 2. Virtual environment
+python -m venv venv
+.\venv\Scripts\activate        # Windows
+# source venv/bin/activate     # macOS / Linux
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Create database and seed demo data
+python -m app.seed
+
+# 5. Run
+uvicorn app.main:app --reload
+```
+
+Open http://127.0.0.1:8000
+
+**Demo login (local seed data only):** `admin` / `1234`
+
+---
+
+## Development Notes
+
+This project was built with AI-assisted development. I defined the requirements, HR business rules, and module scope, then reviewed, tested, and integrated the generated code.
+
+โปรเจกต์นี้พัฒนาโดยใช้ AI ช่วยเขียนโค้ด ผู้พัฒนากำหนด requirement, business rule ด้าน HR และขอบเขตของแต่ละโมดูล จากนั้นตรวจสอบ ทดสอบ และประกอบระบบเอง
+
+---
+
+## License
+
+Copyright © 2024–2026 Monkawee Maneewalaya. **All rights reserved.**
+Source code is visible for portfolio and evaluation purposes only. See [LICENSE](LICENSE).
+For commercial licensing: generalmaitri@hotmail.com
 ```
 
 ### 2. Setup Virtual Environment & Install Dependencies
